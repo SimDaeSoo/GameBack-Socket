@@ -17,7 +17,9 @@ export default class Game {
     }
 
     public async update(dt: number): Promise<void> {
-        console.log(`update ${dt}ms`);
+        if (dt !== 10) {
+            console.log(`update ${dt}ms`);
+        }
     }
 
     public async runScript(script: string): Promise<void> {

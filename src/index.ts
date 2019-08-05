@@ -24,6 +24,7 @@ app.init().then(() => {
 
     const io: socketIO.Server = socketIO(server);
     io.on('connection', (socket: socketIO.Socket) => {
+        console.log('connection');
         socket.on('broadcast', (message: string): void => {
             game.runScript(message);
             io.emit('broadcast', JSON.stringify(message));
