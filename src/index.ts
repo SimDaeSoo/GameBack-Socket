@@ -3,6 +3,7 @@ import * as debug from 'debug';
 import { Application } from "express";
 import * as socketIO from 'socket.io';
 import App from './App';
+import { log, normalizePort } from '../utils/utils';
 // import Game from './game/main';
 
 debug('ts-express:server');
@@ -20,36 +21,22 @@ app.init().then(() => {
 
     server = http.createServer(express);
     server.listen(port);
-    server.on('listening', onListening);
 
     try {
         const io: socketIO.Server = socketIO(server, { serveClient: false });
-        io.on('connection', (socket: socketIO.Socket) => {
-            console.log(`connection: ${socket.id}`);
+        io.on('connection', (socket: socketIO.Socket): void => {
+            log(`Connection: ${socket.id}`);
             socket.on('broadcast', (message: string): void => {
-                console.log(`broadcast: ${message}`);
+                log(`Broadcast: ${message}`);
                 // game.runScript(message);
                 io.emit('broadcast', JSON.stringify(message));
             });
+
+            socket.on('disconnect', (): void => {
+                log(`Disconnect: ${socket.id}`);
+            });
         });
     } catch(error) {
-        console.log(error);
+        log(`Error: ${error}`);
     }
 });
-
-function normalizePort(val: number | string): number | string | boolean {
-    const normalizedPort: number = (typeof val === 'string') ? parseInt(val, 10) : val;
-    if (isNaN(normalizedPort)) {
-        return val;
-    } else if (normalizedPort >= 0) {
-        return normalizedPort;
-    } else {
-        return false;
-    }
-}
-
-function onListening(): void {
-    const addr = server.address();
-    const bind = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
-    console.log(`Listening on ${bind}`);
-}
