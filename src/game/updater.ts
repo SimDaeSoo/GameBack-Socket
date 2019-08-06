@@ -7,6 +7,7 @@ export default class Updater {
     private updateCount: number = 0;
     private GAME_UPDATE_MILLISEC: number = 8;
     private AVERAGE_LOOPING: number = 30;
+    private updaterID: NodeJS.Timeout;
 
     public update(dt: number): void {
         this.performanceCheck(dt);
@@ -15,14 +16,14 @@ export default class Updater {
 
     public updateLoop(): void {
         let lastTime: number = Date.now();
-        setInterval(async () => {
+        this.updaterID = setInterval(async () => {
             const currentTime: number = Date.now();
             await this.update(currentTime - lastTime);
             lastTime = currentTime;
         }, this.GAME_UPDATE_MILLISEC);
     }
 
-    private performanceCheck(dt: number) {
+    private performanceCheck(dt: number): void {
         this.avgUpdate += dt;
         this.updateCount ++;
 
@@ -30,16 +31,20 @@ export default class Updater {
         if (this.avgUpdate >= 1000 * this.AVERAGE_LOOPING) {
             const ups: number = this.updateCount / this.AVERAGE_LOOPING;
             if (this.updateCount < 125 * this.AVERAGE_LOOPING * 0.8) {
-                warn({ text: `${ups.toFixed(2)} UPS (${(ups / (1000 / this.GAME_UPDATE_MILLISEC) * 100).toFixed(2)}%)`});
+                warn({ text: `${this.game.roomName} ${ups.toFixed(2)} UPS (${(ups / (1000 / this.GAME_UPDATE_MILLISEC) * 100).toFixed(2)}%)`});
             } else {
-                system({ text: `${ups.toFixed(2)} UPS (${(ups / (1000 / this.GAME_UPDATE_MILLISEC) * 100).toFixed(2)}%)`});
+                system({ text: `${this.game.roomName} ${ups.toFixed(2)} UPS (${(ups / (1000 / this.GAME_UPDATE_MILLISEC) * 100).toFixed(2)}%)`});
             }
 
             this.avgUpdate = this.updateCount = 0;
         }
     }
     
-    public setGame(game: Game) {
+    public setGame(game: Game): void {
         this.game = game;
+    }
+
+    public stop(): void {
+        clearInterval(this.updaterID);
     }
 }

@@ -1,19 +1,15 @@
 
 import * as debug from 'debug';
+import App from './App';
 import GameServer from './GameServer';
-import Game from './game/main';
-import Updater from './game/updater';
 
 debug('ts-express:server');
 
-const game = new Game();
+// express 서버.
+const app: App = new App();
+app.init();
+app.createServer();
 
-const updater = new Updater();
-updater.setGame(game);
-updater.updateLoop();
-
-const gameServer = new GameServer();
-gameServer.init();
-gameServer.createServer();
-gameServer.createSocketServer();
-gameServer.setGame(game);
+// 게임의 진행을 담당하는 소켓서버이다.
+const gameServer: GameServer = new GameServer();
+gameServer.createSocketServer(app.server);

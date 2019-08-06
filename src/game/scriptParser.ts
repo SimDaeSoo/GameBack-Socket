@@ -1,4 +1,4 @@
-export interface Script {
+export interface IScript {
     script: string,
     args: any
 };
@@ -8,11 +8,13 @@ export default class ScriptParser {
 
     }
 
-    public parsing(textScript: string): Script {
-
+    public parsing(textScript: string): IScript {
+        const re = /(\w+)\s*\((.*)\)\s*/g;
+        const array = re.exec(textScript);
+        
         return {
-            script: '',
-            args: []
+            script: array[1],
+            args: array[2].split(/\s*\,\s*/)
         };
     }
 }
