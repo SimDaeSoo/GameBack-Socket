@@ -26,8 +26,44 @@ BgCyan = "\x1b[46m"
 BgWhite = "\x1b[47m"
 */
 
-export function log(...args: Array<string>) {
-    console.log('[\x1b[36m%s\x1b[0m] %s', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), args);
+export function log(data: { text: string, ping?: number }) {
+    if (data.ping) {
+        if (data.ping > 100) {
+            console.log('[\x1b[36m%s\x1b[0m] %s \x1b[31m(%s ms)\x1b[0m', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text, data.ping);
+        } else if (data.ping > 50) {
+            console.log('[\x1b[36m%s\x1b[0m] %s \x1b[37m(%s ms)\x1b[0m', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text, data.ping);
+        } else {
+            console.log('[\x1b[36m%s\x1b[0m] %s \x1b[32m(%s ms)\x1b[0m', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text, data.ping);
+        }
+    } else {
+        console.log('[\x1b[36m%s\x1b[0m] %s', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text);
+    }
+}
+export function warn(data: { text: string, ping?: number }) {
+    if (data.ping) {
+        if (data.ping > 100) {
+            console.log('[\x1b[31m%s\x1b[0m] %s \x1b[31m(%s ms)\x1b[0m', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text, data.ping);
+        } else if (data.ping > 50) {
+            console.log('[\x1b[31m%s\x1b[0m] %s \x1b[37m(%s ms)\x1b[0m', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text, data.ping);
+        } else {
+            console.log('[\x1b[31m%s\x1b[0m] %s \x1b[32m(%s ms)\x1b[0m', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text, data.ping);
+        }
+    } else {
+        console.log('[\x1b[31m%s\x1b[0m] %s', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text);
+    }
+}
+export function system(data: { text: string, ping?: number }) {
+    if (data.ping) {
+        if (data.ping > 100) {
+            console.log('[\x1b[32m%s\x1b[0m] %s \x1b[31m(%s ms)\x1b[0m', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text, data.ping);
+        } else if (data.ping > 50) {
+            console.log('[\x1b[32m%s\x1b[0m] %s \x1b[37m(%s ms)\x1b[0m', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text, data.ping);
+        } else {
+            console.log('[\x1b[32m%s\x1b[0m] %s \x1b[32m(%s ms)\x1b[0m', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text, data.ping);
+        }
+    } else {
+        console.log('[\x1b[32m%s\x1b[0m] %s', format(new Date(), 'yyyy년MM월dd일HH:mm:ss'), data.text);
+    }
 }
 
 export function normalizePort(val: number | string): number | string | boolean {
