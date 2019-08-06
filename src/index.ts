@@ -1,14 +1,19 @@
 
 import * as debug from 'debug';
-import App from './App';
+import GameServer from './GameServer';
 import Game from './game/main';
+import Updater from './game/updater';
 
 debug('ts-express:server');
 
 const game = new Game();
-game.start();
 
-const app = new App();
-app.init();
-app.createServer();
-app.createSocketServer();
+const updater = new Updater();
+updater.setGame(game);
+updater.updateLoop();
+
+const gameServer = new GameServer();
+gameServer.init();
+gameServer.createServer();
+gameServer.createSocketServer();
+gameServer.setGame(game);

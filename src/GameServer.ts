@@ -5,12 +5,14 @@ import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
 import * as http from 'http';
 import * as socketIO from 'socket.io';
+import Game from './game/main';
 
-class App {
+class GameServer {
     public express: Application;
-    public port: string | number | boolean;
     public server: http.Server;
     public io: socketIO.Server;
+    public port: string | number | boolean;
+    public game: Game;
 
     constructor() {
         this.express = express();
@@ -60,20 +62,29 @@ class App {
                 log({ text: `Connection: ${socket.id}` });
 
                 socket.on('broadcast', (message: string, date: number): void => {
-                    log({ text: `Broadcast: ${message}`, ping: Date.now() - date });
-
+                    // log({ text: `Broadcast: ${message}`, ping: Date.now() - date });
                     this.io.emit('broadcast', JSON.stringify(message), date);
+                    this.game.runScript(message, Date.now() - date);
                 });
 
                 socket.on('disconnect', (): void => {
                     log({ text: `Disconnect: ${socket.id}` });
                     
-                    this.io.emit('broadcast', JSON.stringify(`deleteCharacter(1, ${socket.id})`), Date.now());
+                    this.io.emit('broadcast', JSON.stringify(`deleteCharacter(${socket.id}, 1)`), Date.now());
                 });
             });
         } catch(error) {
             warn({ text: `Error: ${error}` });
         }
     }
+
+    public setGame(game: Game): void {
+        game.broadcastFunc = this.broadcastFunc;
+        this.game = game;
+    }
+
+    public broadcastFunc(): void {
+        // this.io.emit('broadcast', ...)
+    }
 }
-export default App;
+export default GameServer;
