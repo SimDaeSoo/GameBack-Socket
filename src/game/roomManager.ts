@@ -1,5 +1,5 @@
 import { Room, IRoom } from './room';
-import { warn, system } from '../../utils/utils';
+import { warn, system } from '../utils/utils';
 import * as socketIO from 'socket.io';
 
 export class RoomManager {

@@ -1,4 +1,4 @@
-import Game from "./main";
+import GameLogic from "./gameLogic";
 import Updater from "./updater";
 
 export interface IRoom {
@@ -13,7 +13,7 @@ export class Room {
     public members: Array<string> = [];
     public isPlaying: boolean;
     public maxMembers: number;
-    public game: Game;
+    public gameLogic: GameLogic;
     public updater: Updater;
     public io: SocketIO.Namespace;
 
@@ -29,10 +29,10 @@ export class Room {
             this[key] = defaultOptions[key];
         }
 
-        this.game = new Game();
+        this.gameLogic = new GameLogic();
 
         this.updater = new Updater();
-        this.updater.setGame(this.game);
+        this.updater.setGameLogic(this.gameLogic);
         this.updater.updateLoop();
     }
 
@@ -57,7 +57,11 @@ export class Room {
     }
 
     public setNamespace(io: SocketIO.Namespace): void {
-        this.io = this.game.io = io;
-        this.game.roomName = this.name;
+        this.io = this.gameLogic.io = io;
+        this.gameLogic.roomName = this.name;
+    }
+
+    public initSocket(socket: SocketIO.Socket): void {
+        // this.gameLogic.getStatus();
     }
 };

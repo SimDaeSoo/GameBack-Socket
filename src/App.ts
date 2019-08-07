@@ -1,18 +1,16 @@
 import { NextFunction, Request, Response, Application } from 'express';
-import { normalizePort } from '../utils/utils';
+import { normalizePort } from '../src/utils/utils';
 import * as express from 'express';
 import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
 import * as http from 'http';
 import * as socketIO from 'socket.io';
-import Game from './game/main';
 
 class App {
     public express: Application;
     public server: http.Server;
     public io: socketIO.Server;
     public port: string | number | boolean;
-    public game: Game;
 
     constructor() {
         this.express = express();

@@ -1,7 +1,6 @@
-
 import * as debug from 'debug';
 import App from './App';
-import GameServer from './GameServer';
+import GameServer from './game/gameServer';
 
 debug('ts-express:server');
 
