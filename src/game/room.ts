@@ -1,5 +1,6 @@
 import GameLogic from "./gameLogic";
 import Updater from "./updater";
+import GameData from "./gameData";
 
 export interface IRoom {
     name: string,
@@ -14,6 +15,7 @@ export class Room {
     public isPlaying: boolean;
     public maxMembers: number;
     public gameLogic: GameLogic;
+    public gameData: GameData;
     public updater: Updater;
     public io: SocketIO.Namespace;
 
@@ -22,7 +24,7 @@ export class Room {
             name: '',
             members: [],
             isPlaying: false,
-            maxMembers: 2
+            maxMembers: 10
         }, options);
 
         for (let key in defaultOptions) {
@@ -30,10 +32,12 @@ export class Room {
         }
 
         this.gameLogic = new GameLogic();
-
         this.updater = new Updater();
-        this.updater.setGameLogic(this.gameLogic);
-        this.updater.updateLoop();
+        this.gameData = new GameData();
+        this.gameLogic.data = this.gameData;
+        this.updater.onUpdate(async (dt: number): Promise<void> => {
+            await this.gameLogic.update(dt);
+        });
     }
 
     public get joinable(): boolean {
@@ -58,10 +62,5 @@ export class Room {
 
     public setNamespace(io: SocketIO.Namespace): void {
         this.io = this.gameLogic.io = io;
-        this.gameLogic.roomName = this.name;
-    }
-
-    public initSocket(socket: SocketIO.Socket): void {
-        // this.gameLogic.getStatus();
     }
 };

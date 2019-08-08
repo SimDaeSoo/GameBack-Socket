@@ -1,5 +1,5 @@
 import { Room, IRoom } from './room';
-import { warn, system } from '../utils/utils';
+import { warn, log } from '../utils/utils';
 import * as socketIO from 'socket.io';
 
 export class RoomManager {
@@ -28,7 +28,7 @@ export class RoomManager {
     public makeRoom(options?: IRoom): Room {
         const newRoom: Room = new Room(options);
         this.rooms.push(newRoom);
-        system({ text: `MakeRoom: ${newRoom.name}` });
+        log({ text: `MakeRoom: ${newRoom.name}` });
 
         return newRoom;
     }
@@ -48,7 +48,7 @@ export class RoomManager {
 
         for (let key in this.rooms) {
             if (this.rooms[key].name === roomName && this.rooms[key].joinable) {
-                system({ text: `JoinRoom: ${socket.id}, ${this.rooms[key].name}` });
+                log({ text: `JoinRoom: ${socket.id}, ${this.rooms[key].name}` });
                 result = true;
                 socket.join(this.rooms[key].name);
                 this.rooms[key].join(socket.id);
