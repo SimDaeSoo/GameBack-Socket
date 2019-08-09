@@ -8,7 +8,7 @@ class GameServer {
     public io: socketIO.Server;
     public roomManager: RoomManager = new RoomManager();
     
-    // 여기 하단 한번 정리하자.
+    // TODO 여기 하단 한번 정리하자.
     public createSocketServer(server: http.Server): void {
         try {
             this.io = socketIO(server, { serveClient: false });
@@ -21,9 +21,45 @@ class GameServer {
                 // init
                 socket.on('init', (): void => {
                     socket.emit('initGameData', JSON.stringify(room.gameData.data));
-                    const addCharacterMessage: string = JSON.stringify({ script: 'addCharacter', data: { id: socket.id, position: {x:Math.random(),y:Math.random()} } });
-                    this.io.in(room.name).emit('broadcast', addCharacterMessage, Date.now());
-                    room.gameLogic.runCommand(JSON.parse(addCharacterMessage),Date.now());
+
+                    // TODO 제거.
+                    const command3 = {
+                        script: 'setWorldProperties',
+                        data: room.gameData.worldProperties
+                    };
+                    this.io.in(room.name).emit('broadcast', JSON.stringify(command3), Date.now());
+
+                    const command = {
+                        script: 'addCharacter',
+                        data: {
+                            id: socket.id,
+                            objectType: 'characters',
+                            position: { x: (room.members.length - 1) * 16, y: 0 },
+                            vector: { x: 0, y: 0 },
+                            forceVector: { x: 0, y: 0},
+                            flip: { x: false, y: false },
+                            rotation: 0,
+                            rotationVector: 0,
+                            movableRate: 0,
+                            health: 100,
+                            maxHealth: 100,
+                            weight: 1,
+                        }
+                    };
+                    this.io.in(room.name).emit('broadcast', JSON.stringify(command), Date.now());
+                    room.gameLogic.runCommand(command, Date.now());
+
+                    const command2 = {
+                        script: 'setVector',
+                        data: {
+                            id: socket.id,
+                            objectType: 'characters',
+                            position: { x: (room.members.length - 1) * 16, y: 0 },
+                            vector: { x: Math.random(), y: Math.random() }
+                        }
+                    };
+                    this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
+                    room.gameLogic.runCommand(command2, Date.now());
                 });
                 
                 // this.io.to, this.io.in 나누어서 사용할 것, 서버 시간에 동기화 할것인가, 플레이어한테 맞출것인가.. 서버기준이 맞겠지?

@@ -1,6 +1,7 @@
 import GameLogic from "./gameLogic";
 import Updater from "./updater";
 import GameData from "./gameData";
+import { log } from "../utils/utils";
 
 export interface IRoom {
     name: string,
@@ -34,7 +35,13 @@ export class Room {
         this.gameLogic = new GameLogic();
         this.updater = new Updater();
         this.gameData = new GameData();
-        this.gameLogic.data = this.gameData;
+        this.gameLogic.gameData = this.gameData;
+
+        // 임시로 추가. TODO: 제거할 것.
+        log({ text: `Make World...` });
+        this.gameLogic.makeWorldMap(88, 20);
+        log({ text: `Done...` });
+        
         this.updater.onUpdate(async (dt: number): Promise<void> => {
             await this.gameLogic.update(dt);
         });
