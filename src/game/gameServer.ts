@@ -48,18 +48,6 @@ class GameServer {
                     };
                     this.io.in(room.name).emit('broadcast', JSON.stringify(command), Date.now());
                     room.gameLogic.runCommand(command, Date.now());
-
-                    const command2 = {
-                        script: 'setVector',
-                        data: {
-                            id: socket.id,
-                            objectType: 'characters',
-                            position: { x: (room.members.length - 1) * 16, y: 0 },
-                            vector: { x: Math.random(), y: Math.random() }
-                        }
-                    };
-                    this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
-                    room.gameLogic.runCommand(command2, Date.now());
                 });
                 
                 // this.io.to, this.io.in 나누어서 사용할 것, 서버 시간에 동기화 할것인가, 플레이어한테 맞출것인가.. 서버기준이 맞겠지?
@@ -70,7 +58,76 @@ class GameServer {
                     room.gameLogic.runCommand(command, date);
                 });
 
+                // TODO 여기 있는게 맞는가?
+                socket.on('keydown', (keycode: number): void => {
+                    // console.log(`keyDown: ${keycode} / id: ${socket.id}`);
+                    if (keycode === 68) {
+                        const command2 = {
+                            script: 'setVector',
+                            data: {
+                                id: socket.id,
+                                objectType: 'characters',
+                                position: room.gameData.data.characters[socket.id].position,
+                                vector: { x: 0.1, y: room.gameData.data.characters[socket.id].vector.y }
+                            }
+                        };
+                        room.gameLogic.runCommand(command2, Date.now());
+                        this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
+                    } else if (keycode === 65) {
+                        const command2 = {
+                            script: 'setVector',
+                            data: {
+                                id: socket.id,
+                                objectType: 'characters',
+                                position: room.gameData.data.characters[socket.id].position,
+                                vector: { x: -0.1, y: room.gameData.data.characters[socket.id].vector.y }
+                            }
+                        };
+                        room.gameLogic.runCommand(command2, Date.now());
+                        this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
+                    }
+                });
+
+                socket.on('keyup', (keycode: number): void => {
+                    // console.log(`keyup: ${keycode} / id: ${socket.id}`);
+                    if (keycode === 68) {
+                        const command2 = {
+                            script: 'setVector',
+                            data: {
+                                id: socket.id,
+                                objectType: 'characters',
+                                position: room.gameData.data.characters[socket.id].position,
+                                vector: { x: 0, y: room.gameData.data.characters[socket.id].vector.y }
+                            }
+                        };
+                        room.gameLogic.runCommand(command2, Date.now());
+                        this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
+                    } else if (keycode === 65) {
+                        const command2 = {
+                            script: 'setVector',
+                            data: {
+                                id: socket.id,
+                                objectType: 'characters',
+                                position: room.gameData.data.characters[socket.id].position,
+                                vector: { x: 0, y: room.gameData.data.characters[socket.id].vector.y }
+                            }
+                        };
+                        room.gameLogic.runCommand(command2, Date.now());
+                        this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
+                    }
+                });
+
                 socket.on('disconnect', (): void => {
+                    const command = {
+                        script: 'deleteCharacter',
+                        data: {
+                            id: socket.id,
+                            objectType: 'characters'
+                        }
+                    };
+                    this.io.in(room.name).emit('broadcast', JSON.stringify(command), Date.now());
+                    room.gameLogic.runCommand(command, Date.now());
+
                     warn({ text: `Disconnect: ${socket.id}` });
                     this.roomManager.disconnect(socket);
                 });

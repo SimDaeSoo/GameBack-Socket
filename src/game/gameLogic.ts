@@ -1,4 +1,3 @@
-import { gameLog } from "../utils/utils";
 import GameData from "./gameData";
 import MapGenerator from "./class/mapGenerator";
 import { TILE_SIZE } from "./define";
@@ -98,6 +97,16 @@ export default class GameLogic {
     */
     public addCharacter(data: any): void {
         this.gameData.insertData(data.id, data);
+    }
+
+    /* deleteCharacter
+        data: {
+            id: string,
+            objectType: string
+        }
+    */
+    public deleteCharacter(data: any): void {
+        this.gameData.deleteData(data.id, data.objectType);
     }
 
     /* setVector
