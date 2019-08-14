@@ -1,8 +1,0 @@
-{
-    "dirt": {
-        "src": "dirt.png",
-        "health": 100,
-        "maxHealth": 100,
-        "weight": 1
-    }
-}

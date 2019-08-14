@@ -15,5 +15,8 @@ module.exports = {
         rules: [
             { test: /\.tsx?$/, loader: 'ts-loader' }
         ]
+    },
+    externals: {
+        uws: "uws"
     }
 };
