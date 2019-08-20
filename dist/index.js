@@ -517,17 +517,14 @@ class GameLogic {
     }
     getTiles(character) {
         const result = [];
-        // const pos = { x: Math.round(character.position.x / 16) - 1, y: Math.round(character.position.y / 16) - 1 };
-        // const size = { x: Math.round(character.size.x / 16 + 0.5) + 2, y: Math.round(character.size.y / 16 + 0.5) + 2 };
-        // for (let i = pos.x; i < pos.x + size.x; i++) {
-        //     for (let j = pos.y; j < pos.y + size.y; j++) {
-        //         if (this.gameData.data['tiles'][i + j * this.gameData.worldProperties.width]) {
-        //             result.push(this.gameData.data['tiles'][i + j * this.gameData.worldProperties.width]);
-        //         }
-        //     }
-        // }
-        for (let key in this.gameData.data['tiles']) {
-            result.push(this.gameData.data['tiles'][key]);
+        const pos = { x: Math.round(character.position.x / 24) - 2, y: Math.round(character.position.y / 24) - 2 };
+        const size = { x: Math.round(character.size.x / 24 + 0.5) + 4, y: Math.round(character.size.y / 24 + 0.5) + 4 };
+        for (let i = pos.x; i < pos.x + size.x; i++) {
+            for (let j = pos.y; j < pos.y + size.y; j++) {
+                if (this.gameData.data['tiles'][i + j * this.gameData.worldProperties.width]) {
+                    result.push(this.gameData.data['tiles'][i + j * this.gameData.worldProperties.width]);
+                }
+            }
         }
         return result;
     }
@@ -681,7 +678,8 @@ class GameServer {
         room.gameLogic.runCommand(command, Date.now());
     }
     broadcast(socket, room, message, date) {
-        this.io.in(room.name).emit('broadcast', JSON.stringify(message), date);
+        console.log('broadcast');
+        this.io.in(room.name).emit('broadcast', message, date);
         const command = JSON.parse(message);
         room.gameLogic.runCommand(command, date);
     }
@@ -803,7 +801,7 @@ class Room {
         this.gameLogic.gameData = this.gameData;
         // 임시로 추가. TODO: 제거할 것.
         utils_1.log({ text: `Make World...` });
-        this.gameLogic.makeWorldMap(132, 20);
+        this.gameLogic.makeWorldMap(128, 16);
         utils_1.log({ text: `Done...` });
         this.updater.onUpdate((dt) => __awaiter(this, void 0, void 0, function* () {
             yield this.gameLogic.update(dt);
