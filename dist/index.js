@@ -155,6 +155,26 @@ exports.default = App;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 class CollisionEngine {
+    static applyTilePhysics(objA, collisionResult) {
+        const dt = collisionResult.time;
+        const objB = collisionResult.object;
+        // xAxis
+        if (collisionResult.direction.left || collisionResult.direction.right) {
+            const vectorA = objA.vector.x + objB.weight * (objB.vector.x - objA.vector.x) / (objA.weight + objB.weight) * 2;
+            objA.position.x += objA.vector.x * dt + (collisionResult.direction.left ? 0.2 : -0.2);
+            objA.vector.x = CollisionEngine.translateTinyValue(vectorA) * 0;
+        }
+        // yAxis
+        if (collisionResult.direction.up || collisionResult.direction.down) {
+            const vectorA = objA.vector.y + objB.weight * (objB.vector.y - objA.vector.y) / (objA.weight + objB.weight) * 2;
+            objA.position.y += objA.vector.y * dt + (collisionResult.direction.up ? 0.2 : -0.2);
+            objA.vector.y = CollisionEngine.translateTinyValue(vectorA) * 0;
+        }
+        return {
+            objA: objA,
+            objB: objB
+        };
+    }
     static applyPhysics(objA, collisionResult) {
         const dt = collisionResult.time;
         const objB = collisionResult.object;
@@ -184,13 +204,14 @@ class CollisionEngine {
     static getHitObjects(objA, objects, dt) {
         let result = [];
         let time = Infinity;
+        const tickInterpolation = 24;
         objects.forEach((objB) => {
             const hitTestResult = CollisionEngine.hitTest(objA, objB);
-            if (hitTestResult.time <= dt && hitTestResult.time >= 0 && time > hitTestResult.time) {
+            if (hitTestResult.time <= dt && hitTestResult.time >= -tickInterpolation && time > hitTestResult.time) {
                 result = [hitTestResult];
                 time = hitTestResult.time;
             }
-            else if (hitTestResult.time <= dt && hitTestResult.time >= 0 && time === hitTestResult.time) {
+            else if (hitTestResult.time <= dt && hitTestResult.time >= -tickInterpolation && time === hitTestResult.time) {
                 result.push(hitTestResult);
                 time = hitTestResult.time;
             }
@@ -486,7 +507,12 @@ class GameLogic {
         const tiles = this.getTiles(character);
         const result = collisionEngine_1.default.getHitObjects(character, tiles, dt);
         if (result.length > 0) {
-            collisionEngine_1.default.applyPhysics(character, result[0]);
+            result.forEach((collisionData) => {
+                collisionEngine_1.default.applyTilePhysics(character, collisionData);
+            });
+        }
+        else {
+            character.forceVector.y = character.forceVector.y === 0 ? 0.0002 : character.forceVector.y;
         }
     }
     getTiles(character) {
