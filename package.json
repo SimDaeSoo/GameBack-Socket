@@ -4,8 +4,9 @@
   "description": "Game Back-End For Socket Server",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-watch-server --config webpack.config.js ",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf dist",
+    "start": "webpack-watch-server --config ./build/webpack.dev.config.js",
+    "build": "npm run clean && webpack --config ./build/webpack.prod.config.js"
   },
   "repository": {
     "type": "git",
@@ -24,11 +25,15 @@
     "debug": "^4.1.1",
     "express": "^4.17.1",
     "morgan": "^1.9.1",
+    "rimraf": "^2.7.0",
     "socket.io": "^2.2.0",
     "ts-loader": "^6.0.4",
     "tslint": "^5.18.0",
     "typescript": "^3.5.3",
     "webpack": "^4.39.2",
+    "webpack-cli": "^3.3.6",
+    "webpack-merge": "^4.2.1",
+    "webpack-node-externals": "^1.7.2",
     "webpack-watch-server": "^1.2.1"
   }
 }

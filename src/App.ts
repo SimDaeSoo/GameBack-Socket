@@ -4,12 +4,10 @@ import * as express from 'express';
 import * as logger from 'morgan';
 import * as bodyParser from 'body-parser';
 import * as http from 'http';
-import * as socketIO from 'socket.io';
 
 class App {
     public express: Application;
     public server: http.Server;
-    public io: socketIO.Server;
     public port: string | number | boolean;
 
     constructor() {

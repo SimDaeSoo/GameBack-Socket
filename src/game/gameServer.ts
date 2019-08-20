@@ -59,17 +59,21 @@ class GameServer {
             script: 'addCharacter',
             data: {
                 id: socket.id,
+
+                class: 'archer',
                 objectType: 'characters',
-                position: { x: (room.members.length - 1) * 16, y: 0 },
-                vector: { x: 0, y: 0 },
-                forceVector: { x: 0, y: 0.002 },
-                flip: { x: false, y: false },
-                rotation: 0,
-                rotationVector: 0,
-                movableRate: 0,
+                size: { x: 15, y: 15 },
                 health: 100,
                 maxHealth: 100,
                 weight: 1,
+                movableRate: 0,
+
+                position: { x: (room.members.length - 1) * 16, y: 0 },
+                vector: { x: 0, y: 0 },
+                forceVector: { x: 0, y: 0.0005 },
+                flip: { x: false, y: false },
+                rotation: 0,
+                rotationVector: 0
             }
         };
         this.io.in(room.name).emit('broadcast', JSON.stringify(command), Date.now());
@@ -85,7 +89,20 @@ class GameServer {
 
     private keydown(socket: socketIO.Socket, room: Room, keycode: number): void {
         // console.log(`keyDown: ${keycode} / id: ${socket.id}`);
-        if (keycode === 68) {
+        if (keycode === 38) {
+            const command2 = {
+                script: 'setForceVector',
+                data: {
+                    id: socket.id,
+                    objectType: 'characters',
+                    position: room.gameData.data.characters[socket.id].position,
+                    vector: { x: room.gameData.data.characters[socket.id].vector.x, y: -0.15 },
+                    forceVector: { x: room.gameData.data.characters[socket.id].forceVector.x, y: 0.0002 }
+                }
+            };
+            this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
+            room.gameLogic.runCommand(command2, Date.now());
+        } else if (keycode === 39) {
             const command2 = {
                 script: 'setVector',
                 data: {
@@ -95,9 +112,9 @@ class GameServer {
                     vector: { x: 0.1, y: room.gameData.data.characters[socket.id].vector.y }
                 }
             };
-            room.gameLogic.runCommand(command2, Date.now());
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
-        } else if (keycode === 65) {
+            room.gameLogic.runCommand(command2, Date.now());
+        } else if (keycode === 37) {
             const command2 = {
                 script: 'setVector',
                 data: {
@@ -107,14 +124,14 @@ class GameServer {
                     vector: { x: -0.1, y: room.gameData.data.characters[socket.id].vector.y }
                 }
             };
-            room.gameLogic.runCommand(command2, Date.now());
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
+            room.gameLogic.runCommand(command2, Date.now());
         }
     }
 
     private keyup(socket: socketIO.Socket, room: Room, keycode: number): void {
         // console.log(`keyup: ${keycode} / id: ${socket.id}`);
-        if (keycode === 68) {
+        if (keycode === 39 && room.gameData.data.characters[socket.id].vector.x > 0) {
             const command2 = {
                 script: 'setVector',
                 data: {
@@ -124,9 +141,9 @@ class GameServer {
                     vector: { x: 0, y: room.gameData.data.characters[socket.id].vector.y }
                 }
             };
-            room.gameLogic.runCommand(command2, Date.now());
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
-        } else if (keycode === 65) {
+            room.gameLogic.runCommand(command2, Date.now());
+        } else if (keycode === 37 && room.gameData.data.characters[socket.id].vector.x < 0) {
             const command2 = {
                 script: 'setVector',
                 data: {
@@ -136,8 +153,8 @@ class GameServer {
                     vector: { x: 0, y: room.gameData.data.characters[socket.id].vector.y }
                 }
             };
-            room.gameLogic.runCommand(command2, Date.now());
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
+            room.gameLogic.runCommand(command2, Date.now());
         }
     }
 }
