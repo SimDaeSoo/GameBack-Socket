@@ -15,12 +15,12 @@ export default class MapGenerator {
     // 하늘의 크기는 Default 100 tile 로 하자. (1600px)
     public generate(width: number, height: number): any {
         let map: any = {};
-        const defaultSkyHeight: number = 25;
+        const defaultSkyHeight: number = 17;
 
         for (let x=0; x<width; x++) {
             for (let y=defaultSkyHeight; y<height+defaultSkyHeight; y++) {
-                if (Math.random() < 0.4) continue;
-                const positionToIndex: number = x + (y-Math.round(x/15)) * width;
+                if (Math.random() < 0.6) continue;
+                const positionToIndex: number = x + y * width;
                 map[positionToIndex] = this.newTile(x, y);
             }
         }
@@ -39,13 +39,14 @@ export default class MapGenerator {
         const tileProperties: any = {
             class: 'dirt',
             objectType: 'tiles',
-            size: { x: 16, y: 16 },
+            size: { x: 24, y: 24 },
+            scale: { x: 1.5, y: 1.5},
             health: 100,
             maxHealth: 100,
-            weight: 1,
+            weight: 10000000000000000000,
             movableRate: 0,
 
-            position: { x: x * (TILE_SIZE.WIDTH), y: (y-Math.round(x/15)) * (TILE_SIZE.HEIGHT) },
+            position: { x: x * (TILE_SIZE.WIDTH), y: y * (TILE_SIZE.HEIGHT) },
             vector: { x: 0, y: 0 },
             forceVector: { x: 0, y: 0 },
             flip: { x: false, y: false },

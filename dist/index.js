@@ -144,6 +144,119 @@ exports.default = App;
 
 /***/ }),
 
+/***/ "./src/game/class/collisionEngine.ts":
+/*!*******************************************!*\
+  !*** ./src/game/class/collisionEngine.ts ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class CollisionEngine {
+    static applyPhysics(objA, collisionResult) {
+        const dt = collisionResult.time;
+        const objB = collisionResult.object;
+        // xAxis
+        if (collisionResult.direction.left || collisionResult.direction.right) {
+            const vectorA = objA.vector.x + objB.weight * (objB.vector.x - objA.vector.x) / (objA.weight + objB.weight) * 2;
+            const vectorB = objB.vector.x + objA.weight * (objA.vector.x - objB.vector.x) / (objA.weight + objB.weight) * 2;
+            objA.position.x += objA.vector.x * dt;
+            objB.position.x += objB.vector.x * dt;
+            objA.vector.x = CollisionEngine.translateTinyValue(vectorA);
+            objB.vector.x = CollisionEngine.translateTinyValue(vectorB);
+        }
+        // yAxis
+        if (collisionResult.direction.up || collisionResult.direction.down) {
+            const vectorA = objA.vector.y + objB.weight * (objB.vector.y - objA.vector.y) / (objA.weight + objB.weight) * 2;
+            const vectorB = objB.vector.y + objA.weight * (objA.vector.y - objB.vector.y) / (objA.weight + objB.weight) * 2;
+            objA.position.y += objA.vector.y * dt;
+            objB.position.y += objB.vector.y * dt;
+            objA.vector.y = CollisionEngine.translateTinyValue(vectorA);
+            objB.vector.y = CollisionEngine.translateTinyValue(vectorB);
+        }
+        return {
+            objA: objA,
+            objB: objB
+        };
+    }
+    static getHitObjects(objA, objects, dt) {
+        let result = [];
+        let time = Infinity;
+        objects.forEach((objB) => {
+            const hitTestResult = CollisionEngine.hitTest(objA, objB);
+            if (hitTestResult.time <= dt && hitTestResult.time >= 0 && time > hitTestResult.time) {
+                result = [hitTestResult];
+                time = hitTestResult.time;
+            }
+            else if (hitTestResult.time <= dt && hitTestResult.time >= 0 && time === hitTestResult.time) {
+                result.push(hitTestResult);
+                time = hitTestResult.time;
+            }
+        });
+        return result;
+    }
+    static hitTest(objA, objB) {
+        const xAxis = CollisionEngine.xAxisHitTest(objA, objB);
+        const yAxis = CollisionEngine.yAxisHitTest(objA, objB);
+        const result = { direction: { left: false, right: false, up: false, down: false }, time: Infinity, object: null };
+        // Collision
+        if (xAxis.min < yAxis.max && xAxis.max > yAxis.min) {
+            result.time = xAxis.min < yAxis.min ? yAxis.min : xAxis.min;
+            result.direction.left = (xAxis.min === result.time) && (objB.vector.x - objA.vector.x > 0);
+            result.direction.right = (xAxis.min === result.time) && (objB.vector.x - objA.vector.x < 0);
+            result.direction.up = (yAxis.min === result.time) && (objB.vector.y - objA.vector.y > 0);
+            result.direction.down = (yAxis.min === result.time) && (objB.vector.y - objA.vector.y < 0);
+            result.object = objB;
+        }
+        return result;
+    }
+    static yAxisHitTest(objA, objB) {
+        const vector = objB.vector.y - objA.vector.y;
+        let timestamp = { min: Infinity, max: -Infinity };
+        if (vector === 0) {
+            if (objA.position.y + objA.size.y >= objB.position.y && objA.position.y <= objB.position.y + objB.size.y) {
+                timestamp = { min: -Infinity, max: Infinity };
+            }
+        }
+        else if (vector > 0) {
+            timestamp.max = ((objA.position.y + objA.size.y) - objB.position.y) / vector;
+            timestamp.min = (objA.position.y - (objB.position.y + objB.size.y)) / vector;
+        }
+        else if (vector < 0) {
+            timestamp.max = (objA.position.y - (objB.position.y + objB.size.y)) / vector;
+            timestamp.min = ((objA.position.y + objA.size.y) - objB.position.y) / vector;
+        }
+        return timestamp;
+    }
+    static xAxisHitTest(objA, objB) {
+        const vector = objB.vector.x - objA.vector.x;
+        let timestamp = { min: Infinity, max: -Infinity };
+        if (vector === 0) {
+            if (objA.position.x + objA.size.x >= objB.position.x && objA.position.x <= objB.position.x + objB.size.x) {
+                timestamp = { min: -Infinity, max: Infinity };
+            }
+        }
+        else if (vector > 0) {
+            timestamp.max = ((objA.position.x + objA.size.x) - objB.position.x) / vector;
+            timestamp.min = (objA.position.x - (objB.position.x + objB.size.x)) / vector;
+        }
+        else if (vector < 0) {
+            timestamp.max = (objA.position.x - (objB.position.x + objB.size.x)) / vector;
+            timestamp.min = ((objA.position.x + objA.size.x) - objB.position.x) / vector;
+        }
+        return timestamp;
+    }
+    static translateTinyValue(value) {
+        return Math.abs(value) <= 0.00000000001 ? 0 : value;
+    }
+}
+exports.default = CollisionEngine;
+
+
+/***/ }),
+
 /***/ "./src/game/class/mapGenerator.ts":
 /*!****************************************!*\
   !*** ./src/game/class/mapGenerator.ts ***!
@@ -168,12 +281,12 @@ class MapGenerator {
     // 하늘의 크기는 Default 100 tile 로 하자. (1600px)
     generate(width, height) {
         let map = {};
-        const defaultSkyHeight = 25;
+        const defaultSkyHeight = 17;
         for (let x = 0; x < width; x++) {
             for (let y = defaultSkyHeight; y < height + defaultSkyHeight; y++) {
-                if (Math.random() < 0.4)
+                if (Math.random() < 0.6)
                     continue;
-                const positionToIndex = x + (y - Math.round(x / 15)) * width;
+                const positionToIndex = x + y * width;
                 map[positionToIndex] = this.newTile(x, y);
             }
         }
@@ -190,12 +303,13 @@ class MapGenerator {
         const tileProperties = {
             class: 'dirt',
             objectType: 'tiles',
-            size: { x: 16, y: 16 },
+            size: { x: 24, y: 24 },
+            scale: { x: 1.5, y: 1.5 },
             health: 100,
             maxHealth: 100,
-            weight: 1,
+            weight: 10000000000000000000,
             movableRate: 0,
-            position: { x: x * (define_1.TILE_SIZE.WIDTH), y: (y - Math.round(x / 15)) * (define_1.TILE_SIZE.HEIGHT) },
+            position: { x: x * (define_1.TILE_SIZE.WIDTH), y: y * (define_1.TILE_SIZE.HEIGHT) },
             vector: { x: 0, y: 0 },
             forceVector: { x: 0, y: 0 },
             flip: { x: false, y: false },
@@ -222,8 +336,8 @@ exports.default = MapGenerator;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TILE_SIZE = {
-    WIDTH: 16,
-    HEIGHT: 16
+    WIDTH: 24,
+    HEIGHT: 24
 };
 
 
@@ -341,7 +455,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mapGenerator_1 = __webpack_require__(/*! ./class/mapGenerator */ "./src/game/class/mapGenerator.ts");
-const utils_1 = __webpack_require__(/*! ../utils/utils */ "./src/utils/utils.ts");
+const collisionEngine_1 = __webpack_require__(/*! ./class/collisionEngine */ "./src/game/class/collisionEngine.ts");
 class GameLogic {
     makeWorldMap(width, height) {
         const mapGenerator = new mapGenerator_1.default();
@@ -354,154 +468,42 @@ class GameLogic {
     /* ----------------------- Logic ----------------------- */
     update(dt) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.hitTestAll(dt);
+            this.collision(dt);
             this.applyVector(dt);
             this.applyForceVector(dt);
         });
     }
-    hitTestAll(dt) {
-        this.characterHitTest(dt);
-        this.objectHitTest(dt);
+    collision(dt) {
+        this.characterCollision(dt);
     }
-    hitTest(a, b, dt) {
-        const yAxisHitTime = this.yAxisHitTest(a, b, dt);
-        const xAxisHitTime = this.xAxisHitTest(a, b, dt);
-        const base = { min: 0, max: 1 };
-        const result = {
-            isHit: false,
-            time: 0,
-            hitArea: {
-                left: false,
-                right: false,
-                up: false,
-                down: false
-            }
-        };
-        if (utils_1.isBounded(base, xAxisHitTime) && utils_1.isBounded(base, yAxisHitTime) && utils_1.isNested(xAxisHitTime, yAxisHitTime)) {
-            result.isHit = true;
-            result.time = utils_1.max(xAxisHitTime.min, yAxisHitTime.min);
-            if (result.time === xAxisHitTime.min) {
-                if (a.position.x > b.position.x) {
-                    result.hitArea.left = true;
-                }
-                else if (a.position.x < b.position.x) {
-                    result.hitArea.right = true;
-                }
-            }
-            if (result.time === yAxisHitTime.min) {
-                if (a.position.y > b.position.y) {
-                    result.hitArea.up = true;
-                }
-                else if (a.position.y < b.position.y) {
-                    result.hitArea.down = true;
-                }
-            }
-            result.time *= dt;
-        }
-        return result;
-    }
-    yAxisHitTest(a, b, dt) {
-        const v = (a.vector.y * dt) - (b.vector.y * dt);
-        const result = { min: 2, max: -1 };
-        if (v === 0 && (a.position.y + a.size.y) - b.position.y > 0 && (b.position.y + b.size.y) - a.position.y > 0) {
-            result.min = 0;
-            result.max = 1;
-        }
-        else if (v > 0) {
-            result.max = (a.position.y - (b.position.y + b.size.y)) / -v;
-            result.min = ((a.position.y + a.size.y) - b.position.y) / -v;
-        }
-        else if (v < 0) {
-            result.max = (b.position.y - (a.position.y + a.size.y)) / v;
-            result.min = ((b.position.y - b.size.y) - a.position.y) / v;
-        }
-        result.min = result.min < 0 ? 0 : result.min;
-        result.max = result.max > 1 ? 1 : result.max;
-        return result;
-    }
-    xAxisHitTest(a, b, dt) {
-        const v = (a.vector.x * dt) - (b.vector.x * dt);
-        const result = { min: 2, max: -1 };
-        if (v === 0 && (a.position.x + a.size.x) - b.position.x > 0 && (b.position.x + b.size.x) - a.position.x > 0) {
-            result.min = 0;
-            result.max = 1;
-        }
-        else if (v > 0) {
-            result.min = (b.position.x - (a.position.x + a.size.x)) / v;
-            result.max = ((b.position.x + b.size.x) - a.position.x) / v;
-        }
-        else if (v < 0) {
-            result.min = (a.position.x - (b.position.x + b.size.x)) / -v;
-            result.max = ((a.position.x + a.size.x) - b.position.x) / -v;
-        }
-        result.min = result.min < 0 ? 0 : result.min;
-        result.max = result.max > 1 ? 1 : result.max;
-        return result;
-    }
-    characterHitTest(dt) {
+    characterCollision(dt) {
         for (let id in this.gameData.data['characters']) {
             const character = this.gameData.data['characters'][id];
-            this.characterTileHitTest(character, dt);
-            this.characterObjectHitTest(character, dt);
+            this.characterTileCollision(character, dt);
+        }
+    }
+    characterTileCollision(character, dt) {
+        const tiles = this.getTiles(character);
+        const result = collisionEngine_1.default.getHitObjects(character, tiles, dt);
+        if (result.length > 0) {
+            collisionEngine_1.default.applyPhysics(character, result[0]);
         }
     }
     getTiles(character) {
         const result = [];
-        const pos = { x: Math.round(character.position.x / 16) - 1, y: Math.round(character.position.y / 16) - 1 };
-        const size = { x: Math.round(character.size.x / 16 + 0.5) + 2, y: Math.round(character.size.y / 16 + 0.5) + 2 };
-        for (let i = pos.x; i < pos.x + size.x; i++) {
-            for (let j = pos.y; j < pos.y + size.y; j++) {
-                if (this.gameData.data['tiles'][i + j * this.gameData.worldProperties.width]) {
-                    result.push(this.gameData.data['tiles'][i + j * this.gameData.worldProperties.width]);
-                }
-            }
+        // const pos = { x: Math.round(character.position.x / 16) - 1, y: Math.round(character.position.y / 16) - 1 };
+        // const size = { x: Math.round(character.size.x / 16 + 0.5) + 2, y: Math.round(character.size.y / 16 + 0.5) + 2 };
+        // for (let i = pos.x; i < pos.x + size.x; i++) {
+        //     for (let j = pos.y; j < pos.y + size.y; j++) {
+        //         if (this.gameData.data['tiles'][i + j * this.gameData.worldProperties.width]) {
+        //             result.push(this.gameData.data['tiles'][i + j * this.gameData.worldProperties.width]);
+        //         }
+        //     }
+        // }
+        for (let key in this.gameData.data['tiles']) {
+            result.push(this.gameData.data['tiles'][key]);
         }
         return result;
-    }
-    characterTileHitTest(character, dt) {
-        // 캐릭터의 Vector 계산해서 Tile과 HitTest한다. -> 캐릭터의 위치값을 이용해서 Vector거리의 타일을 조금 구해오면 빠르게 연산 가능할 것이다.
-        const tiles = this.getTiles(character);
-        tiles.forEach((tile) => {
-            const result = this.hitTest(character, tile, dt);
-            if (result.isHit) {
-                const command = {
-                    script: 'setVector',
-                    data: {
-                        id: character.id,
-                        objectType: 'characters',
-                        position: character.position,
-                        vector: character.vector
-                    }
-                };
-                if (result.hitArea.left && character.vector.x <= 0) {
-                    command.data.position.x = character.position.x + character.vector.x * result.time - character.vector.x * (dt + 4);
-                }
-                else if (result.hitArea.right && character.vector.x >= 0) {
-                    command.data.position.x = character.position.x + character.vector.x * result.time - character.vector.x * (dt + 4);
-                }
-                else if (result.hitArea.up && character.vector.y <= 0) {
-                    command.data.position.y = character.position.y + character.vector.y * result.time + 0.03 * dt;
-                    command.data.vector.y = 0.001;
-                }
-                else if (result.hitArea.down && character.vector.y >= 0) {
-                    command.data.position.y = character.position.y + character.vector.y * result.time - 0.03 * dt;
-                    command.data.vector.y = -0.001;
-                }
-                this.setVector(command.data, 0);
-            }
-        });
-    }
-    characterObjectHitTest(character, dt) {
-        // 이게 좀 복잡한데.. 캐릭터의 Vector와, Object의 Vector 둘 다 신경써야한다.. 어떻게 처리할까..?
-    }
-    objectHitTest(dt) {
-        for (let id in this.gameData['objects']) {
-            const object = this.gameData['objects'][id];
-            this.objectTileHitTest(object, dt);
-        }
-    }
-    objectTileHitTest(object, dt) {
-        // 총알과 타일의 hitTest
     }
     applyForceVector(dt) {
         for (let type in this.gameData.data) {
@@ -635,7 +637,8 @@ class GameServer {
                 id: socket.id,
                 class: 'archer',
                 objectType: 'characters',
-                size: { x: 15, y: 15 },
+                size: { x: 16, y: 16 },
+                scale: { x: 1, y: 1 },
                 health: 100,
                 maxHealth: 100,
                 weight: 1,
@@ -1100,32 +1103,6 @@ function normalizePort(val) {
     }
 }
 exports.normalizePort = normalizePort;
-function isNested(a, b) {
-    if (a.min <= b.max && a.max >= b.min) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-exports.isNested = isNested;
-function isBounded(a, b) {
-    if (a.min <= b.min && a.max >= b.max) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
-exports.isBounded = isBounded;
-function max(a, b) {
-    return a > b ? a : b;
-}
-exports.max = max;
-function min(a, b) {
-    return a < b ? a : b;
-}
-exports.min = min;
 function format(date, format) {
     const weekName = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
     let h;
