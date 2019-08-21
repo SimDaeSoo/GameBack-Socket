@@ -307,12 +307,12 @@ class MapGenerator {
         for (let y = defaultSkyHeight; y < height + defaultSkyHeight; y++) {
             for (let x = 0; x < width; x++) {
                 if (!MapGenerator.isDeletedTile(x, y, defaultSkyHeight + 2)) {
-                    if (Math.random() <= 0.9 - 1.1 * (y / (20 + defaultSkyHeight)) || (map[x + (y - 1) * width] !== undefined && map[x - 1 + y * width] !== undefined)) {
+                    if (Math.random() <= 0.91 - 1.1 * (y / (20 + defaultSkyHeight)) || (map[x + (y - 1) * width] !== undefined && map[x - 1 + y * width] !== undefined)) {
                         const positionToIndex = x + y * width;
                         map[positionToIndex] = this.newTile(x, y);
                     }
                     if (x > 0) {
-                        if (Math.random() <= 0.9 - 1.1 * (y / (20 + defaultSkyHeight)) || (map[(width - x - 1) + (y - 1) * width] !== undefined && map[(width - x) + y * width] !== undefined)) {
+                        if (Math.random() <= 0.91 - 1.1 * (y / (20 + defaultSkyHeight)) || (map[(width - x - 1) + (y - 1) * width] !== undefined && map[(width - x) + y * width] !== undefined)) {
                             const positionToIndex = (width - x - 1) + y * width;
                             map[positionToIndex] = this.newTile((width - x - 1), y);
                         }
@@ -832,7 +832,7 @@ class Room {
         this.gameLogic.gameData = this.gameData;
         // 임시로 추가. TODO: 제거할 것.
         utils_1.log({ text: `Make World...` });
-        this.gameLogic.makeWorldMap(200, 24);
+        this.gameLogic.makeWorldMap(200, 20);
         utils_1.log({ text: `Done...` });
         this.updater.onUpdate((dt) => __awaiter(this, void 0, void 0, function* () {
             yield this.gameLogic.update(dt);

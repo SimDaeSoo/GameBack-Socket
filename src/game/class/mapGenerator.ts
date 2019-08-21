@@ -18,12 +18,12 @@ export default class MapGenerator {
         for (let y=defaultSkyHeight; y<height+defaultSkyHeight; y++) {
             for (let x=0; x<width; x++) {
                 if (!MapGenerator.isDeletedTile(x, y, defaultSkyHeight + 2)) {
-                    if (Math.random() <= 0.9 - 1.1*(y / (20+defaultSkyHeight)) || (map[x + (y-1) * width] !== undefined && map[x-1 + y * width] !== undefined)) {
+                    if (Math.random() <= 0.91 - 1.1*(y / (20+defaultSkyHeight)) || (map[x + (y-1) * width] !== undefined && map[x-1 + y * width] !== undefined)) {
                         const positionToIndex: number = x + y * width;
                         map[positionToIndex] = this.newTile(x, y);
                     }
                     if (x > 0) {
-                        if (Math.random() <= 0.9 - 1.1*(y / (20+defaultSkyHeight)) || (map[(width-x - 1) + (y-1) * width] !== undefined && map[(width-x) + y * width] !== undefined)) {
+                        if (Math.random() <= 0.91 - 1.1*(y / (20+defaultSkyHeight)) || (map[(width-x - 1) + (y-1) * width] !== undefined && map[(width-x) + y * width] !== undefined)) {
                             const positionToIndex = (width - x - 1) + y * width;
                             map[positionToIndex] = this.newTile((width - x - 1), y);
                         }
