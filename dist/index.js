@@ -290,30 +290,47 @@ exports.default = CollisionEngine;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const define_1 = __webpack_require__(/*! ../define */ "./src/game/define.ts");
+const utils_1 = __webpack_require__(/*! ../../utils/utils */ "./src/utils/utils.ts");
 /*
     플레이어는 초당 30발의 armo를 생성 => 10명제한 => 300개의 Object
     타일은 총 600 * 150 => 900,000개의 Tile Object
     HitTest Object => 해당 오브젝트의 크기 * Vector 범위검사.
 */
+// Map Generating 다시 볼 것.
 class MapGenerator {
-    constructor() {
-    }
     // 600 * 150의 맵을 목표 => 9600px * 2400px => 9600px * 4000px 의 맵..
     // 60 * 15 => 960px * 240px => 960px * 1840px 의 맵.. => 화면에 보이는 크기만큼만 렌더링 할 수 있도록 해야할 것.
     // 하늘의 크기는 Default 100 tile 로 하자. (1600px)
     generate(width, height) {
         let map = {};
         const defaultSkyHeight = 17;
-        for (let x = 0; x < width; x++) {
-            for (let y = defaultSkyHeight; y < height + defaultSkyHeight; y++) {
-                if (Math.random() < 0.3)
-                    continue;
+        for (let y = defaultSkyHeight; y < height + defaultSkyHeight; y++) {
+            for (let x = 0; x < width; x++) {
+                if (!MapGenerator.isDeletedTile(x, y, defaultSkyHeight + 2)) {
+                    if (Math.random() <= 0.9 - 1.1 * (y / (20 + defaultSkyHeight)) || (map[x + (y - 1) * width] !== undefined && map[x - 1 + y * width] !== undefined)) {
+                        const positionToIndex = x + y * width;
+                        map[positionToIndex] = this.newTile(x, y);
+                    }
+                    if (x > 0) {
+                        if (Math.random() <= 0.9 - 1.1 * (y / (20 + defaultSkyHeight)) || (map[(width - x - 1) + (y - 1) * width] !== undefined && map[(width - x) + y * width] !== undefined)) {
+                            const positionToIndex = (width - x - 1) + y * width;
+                            map[positionToIndex] = this.newTile((width - x - 1), y);
+                        }
+                    }
+                }
+            }
+        }
+        for (let y = height + defaultSkyHeight - 2; y < height + defaultSkyHeight; y++) {
+            for (let x = 0; x < width; x++) {
                 const positionToIndex = x + y * width;
                 map[positionToIndex] = this.newTile(x, y);
             }
         }
         for (let key in map) {
-            MapGenerator.changeTileNumber(map, key, width);
+            utils_1.changeTileNumber(map, key, width);
+            if (map[key].tileNumber === 15) {
+                delete map[key];
+            }
         }
         return {
             map: map,
@@ -323,33 +340,11 @@ class MapGenerator {
             }
         };
     }
-    static changeTileNumber(map, key, width) {
-        const x = map[key].position.x / define_1.TILE_SIZE.WIDTH;
-        const y = map[key].position.y / define_1.TILE_SIZE.HEIGHT;
-        if (map[(x - 1) + y * width] && map[(x + 1) + y * width]) {
-            map[key].tileNumber = 1;
-        }
-        else if (map[(x - 1) + y * width]) {
-            map[key].tileNumber = 2;
-        }
-        else if (map[(x + 1) + y * width]) {
-            map[key].tileNumber = 0;
-        }
-        else {
-            map[key].tileNumber = 3;
-        }
-        if (map[x + (y - 1) * width] && map[x + (y + 1) * width]) {
-            map[key].tileNumber += 4;
-        }
-        else if (map[x + (y - 1) * width]) {
-            map[key].tileNumber += 8;
-        }
-        else if (map[x + (y + 1) * width]) {
-            map[key].tileNumber += 0;
-        }
-        else {
-            map[key].tileNumber += 12;
-        }
+    static isDeletedTile(x, y, baseY) {
+        const HEIGHT = 3;
+        const CYCLE = 60;
+        const Y = Math.sin(Math.PI * 2 / CYCLE * (x + CYCLE / 4 * 3)) * HEIGHT / 2;
+        return (y - baseY) < Y;
     }
     // TODO 변경
     newTile(x, y) {
@@ -374,7 +369,6 @@ class MapGenerator {
     }
 }
 exports.default = MapGenerator;
-// Map Generator -> Data -> TileMap Load -> Tile 하나하나 구성.
 
 
 /***/ }),
@@ -566,8 +560,8 @@ class GameLogic {
         for (let type in this.gameData.data) {
             for (let id in this.gameData.data[type]) {
                 if (this.gameData.data[type][id].forceVector.x !== 0 || this.gameData.data[type][id].forceVector.y !== 0) {
-                    this.gameData.data[type][id].vector.x += dt * this.gameData.data[type][id].forceVector.x;
-                    this.gameData.data[type][id].vector.y += dt * this.gameData.data[type][id].forceVector.y;
+                    this.gameData.data[type][id].vector.x += dt * this.gameData.data[type][id].forceVector.x / this.gameData.data[type][id].weight;
+                    this.gameData.data[type][id].vector.y += dt * this.gameData.data[type][id].forceVector.y / this.gameData.data[type][id].weight;
                     this.gameData.dirty(id, type);
                 }
             }
@@ -838,7 +832,7 @@ class Room {
         this.gameLogic.gameData = this.gameData;
         // 임시로 추가. TODO: 제거할 것.
         utils_1.log({ text: `Make World...` });
-        this.gameLogic.makeWorldMap(128, 16);
+        this.gameLogic.makeWorldMap(200, 24);
         utils_1.log({ text: `Done...` });
         this.updater.onUpdate((dt) => __awaiter(this, void 0, void 0, function* () {
             yield this.gameLogic.update(dt);
@@ -1055,6 +1049,8 @@ gameServer.createSocketServer(app.server);
 
 "use strict";
 
+Object.defineProperty(exports, "__esModule", { value: true });
+const define_1 = __webpack_require__(/*! ../game/define */ "./src/game/define.ts");
 /*
 Reset = "\x1b[0m"
 Bright = "\x1b[1m"
@@ -1082,7 +1078,6 @@ BgMagenta = "\x1b[45m"
 BgCyan = "\x1b[46m"
 BgWhite = "\x1b[47m"
 */
-Object.defineProperty(exports, "__esModule", { value: true });
 function gameLog(data) {
     if (data.ping) {
         if (data.ping > 100) {
@@ -1184,6 +1179,35 @@ function format(date, format) {
     });
 }
 ;
+function changeTileNumber(map, key, width) {
+    const x = map[key].position.x / define_1.TILE_SIZE.WIDTH;
+    const y = map[key].position.y / define_1.TILE_SIZE.HEIGHT;
+    if ((map[(x - 1) + y * width] && x > 0) && (map[(x + 1) + y * width] && x < width - 1)) {
+        map[key].tileNumber = 1;
+    }
+    else if (map[(x - 1) + y * width] && x > 0) {
+        map[key].tileNumber = 2;
+    }
+    else if (map[(x + 1) + y * width] && x < width - 1) {
+        map[key].tileNumber = 0;
+    }
+    else {
+        map[key].tileNumber = 3;
+    }
+    if (map[x + (y - 1) * width] && map[x + (y + 1) * width]) {
+        map[key].tileNumber += 4;
+    }
+    else if (map[x + (y - 1) * width]) {
+        map[key].tileNumber += 8;
+    }
+    else if (map[x + (y + 1) * width]) {
+        map[key].tileNumber += 0;
+    }
+    else {
+        map[key].tileNumber += 12;
+    }
+}
+exports.changeTileNumber = changeTileNumber;
 
 
 /***/ }),
