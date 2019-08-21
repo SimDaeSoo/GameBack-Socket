@@ -19,10 +19,14 @@ export default class MapGenerator {
 
         for (let x=0; x<width; x++) {
             for (let y=defaultSkyHeight; y<height+defaultSkyHeight; y++) {
-                if (Math.random() < 0.6) continue;
+                if (Math.random() < 0.3) continue;
                 const positionToIndex: number = x + y * width;
                 map[positionToIndex] = this.newTile(x, y);
             }
+        }
+
+        for (let key in map) {
+            MapGenerator.changeTileNumber(map, key, width);
         }
 
         return {
@@ -34,17 +38,42 @@ export default class MapGenerator {
         };
     }
 
+    public static changeTileNumber(map: any, key: string, width: number): void {
+        const x = map[key].position.x / TILE_SIZE.WIDTH;
+        const y = map[key].position.y / TILE_SIZE.HEIGHT;
+        if (map[(x-1)+y*width] && map[(x+1)+y*width]) {
+            map[key].tileNumber = 1;
+        } else if (map[(x-1)+y*width]) {
+            map[key].tileNumber = 2;
+        } else if (map[(x+1)+y*width]) {
+            map[key].tileNumber = 0;
+        } else {
+            map[key].tileNumber = 3;
+        }
+        
+        if (map[x+(y-1)*width] && map[x+(y+1)*width]) {
+            map[key].tileNumber += 4;
+        } else if (map[x+(y-1)*width]) {
+            map[key].tileNumber += 8;
+        } else if (map[x+(y+1)*width]) {
+            map[key].tileNumber += 0;
+        } else {
+            map[key].tileNumber += 12;
+        }
+    }
+
     // TODO 변경
     public newTile(x: number, y: number): any {
         const tileProperties: any = {
             class: 'dirt',
             objectType: 'tiles',
-            size: { x: 24, y: 24 },
+            size: { x: TILE_SIZE.WIDTH, y: TILE_SIZE.HEIGHT },
             scale: { x: 1.5, y: 1.5},
             health: 100,
             maxHealth: 100,
             weight: 10000000000000000000,
             movableRate: 0,
+            tileNumber: 0,
 
             position: { x: x * (TILE_SIZE.WIDTH), y: y * (TILE_SIZE.HEIGHT) },
             vector: { x: 0, y: 0 },

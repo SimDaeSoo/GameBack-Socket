@@ -62,12 +62,13 @@ class GameServer {
 
                 class: 'archer',
                 objectType: 'characters',
-                size: { x: 16, y: 16 },
+                size: { x: 28, y: 76 },
                 scale: { x: 1, y: 1 },
                 health: 100,
                 maxHealth: 100,
                 weight: 1,
                 movableRate: 0,
+                land: false,
 
                 position: { x: (room.members.length - 1) * 16, y: 0 },
                 vector: { x: 0, y: 0 },
@@ -82,7 +83,6 @@ class GameServer {
     }
 
     private broadcast(socket: socketIO.Socket, room: Room, message: string, date: number): void {
-        console.log('broadcast');
         this.io.in(room.name).emit('broadcast', message, date);
         
         const command: any = JSON.parse(message);
@@ -92,18 +92,21 @@ class GameServer {
     private keydown(socket: socketIO.Socket, room: Room, keycode: number): void {
         // console.log(`keyDown: ${keycode} / id: ${socket.id}`);
         if (keycode === 38) {
-            const command2 = {
-                script: 'setForceVector',
-                data: {
-                    id: socket.id,
-                    objectType: 'characters',
-                    position: room.gameData.data.characters[socket.id].position,
-                    vector: { x: room.gameData.data.characters[socket.id].vector.x, y: -0.15 },
-                    forceVector: { x: room.gameData.data.characters[socket.id].forceVector.x, y: 0.0002 }
-                }
-            };
-            this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
-            room.gameLogic.runCommand(command2, Date.now());
+            if (room.gameData.data.characters[socket.id].land) {
+                const command2 = {
+                    script: 'setForceVector',
+                    data: {
+                        id: socket.id,
+                        objectType: 'characters',
+                        position: room.gameData.data.characters[socket.id].position,
+                        vector: { x: room.gameData.data.characters[socket.id].vector.x, y: -0.15 },
+                        forceVector: { x: room.gameData.data.characters[socket.id].forceVector.x, y: 0.0002 }
+                    }
+                };
+                room.gameData.data.characters[socket.id].land = false;
+                this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
+                room.gameLogic.runCommand(command2, Date.now());
+            }
         } else if (keycode === 39) {
             const command2 = {
                 script: 'setVector',
@@ -111,7 +114,7 @@ class GameServer {
                     id: socket.id,
                     objectType: 'characters',
                     position: room.gameData.data.characters[socket.id].position,
-                    vector: { x: 0.1, y: room.gameData.data.characters[socket.id].vector.y }
+                    vector: { x: 0.15, y: room.gameData.data.characters[socket.id].vector.y }
                 }
             };
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
@@ -123,7 +126,7 @@ class GameServer {
                     id: socket.id,
                     objectType: 'characters',
                     position: room.gameData.data.characters[socket.id].position,
-                    vector: { x: -0.1, y: room.gameData.data.characters[socket.id].vector.y }
+                    vector: { x: -0.15, y: room.gameData.data.characters[socket.id].vector.y }
                 }
             };
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());

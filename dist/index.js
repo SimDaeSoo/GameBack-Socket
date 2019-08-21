@@ -161,14 +161,15 @@ class CollisionEngine {
         // xAxis
         if (collisionResult.direction.left || collisionResult.direction.right) {
             const vectorA = objA.vector.x + objB.weight * (objB.vector.x - objA.vector.x) / (objA.weight + objB.weight) * 2;
-            objA.position.x += objA.vector.x * dt + (collisionResult.direction.left ? 0.2 : -0.2);
+            objA.position.x += objA.vector.x * dt + (collisionResult.direction.left ? 0.15 : -0.15);
             objA.vector.x = CollisionEngine.translateTinyValue(vectorA) * 0;
         }
         // yAxis
         if (collisionResult.direction.up || collisionResult.direction.down) {
             const vectorA = objA.vector.y + objB.weight * (objB.vector.y - objA.vector.y) / (objA.weight + objB.weight) * 2;
-            objA.position.y += objA.vector.y * dt + (collisionResult.direction.up ? 0.2 : -0.2);
+            objA.position.y += objA.vector.y * dt + (collisionResult.direction.up ? 0.15 : -0.15);
             objA.vector.y = CollisionEngine.translateTinyValue(vectorA) * 0;
+            objA.land = true;
         }
         return {
             objA: objA,
@@ -305,11 +306,14 @@ class MapGenerator {
         const defaultSkyHeight = 17;
         for (let x = 0; x < width; x++) {
             for (let y = defaultSkyHeight; y < height + defaultSkyHeight; y++) {
-                if (Math.random() < 0.6)
+                if (Math.random() < 0.3)
                     continue;
                 const positionToIndex = x + y * width;
                 map[positionToIndex] = this.newTile(x, y);
             }
+        }
+        for (let key in map) {
+            MapGenerator.changeTileNumber(map, key, width);
         }
         return {
             map: map,
@@ -319,17 +323,46 @@ class MapGenerator {
             }
         };
     }
+    static changeTileNumber(map, key, width) {
+        const x = map[key].position.x / define_1.TILE_SIZE.WIDTH;
+        const y = map[key].position.y / define_1.TILE_SIZE.HEIGHT;
+        if (map[(x - 1) + y * width] && map[(x + 1) + y * width]) {
+            map[key].tileNumber = 1;
+        }
+        else if (map[(x - 1) + y * width]) {
+            map[key].tileNumber = 2;
+        }
+        else if (map[(x + 1) + y * width]) {
+            map[key].tileNumber = 0;
+        }
+        else {
+            map[key].tileNumber = 3;
+        }
+        if (map[x + (y - 1) * width] && map[x + (y + 1) * width]) {
+            map[key].tileNumber += 4;
+        }
+        else if (map[x + (y - 1) * width]) {
+            map[key].tileNumber += 8;
+        }
+        else if (map[x + (y + 1) * width]) {
+            map[key].tileNumber += 0;
+        }
+        else {
+            map[key].tileNumber += 12;
+        }
+    }
     // TODO 변경
     newTile(x, y) {
         const tileProperties = {
             class: 'dirt',
             objectType: 'tiles',
-            size: { x: 24, y: 24 },
+            size: { x: define_1.TILE_SIZE.WIDTH, y: define_1.TILE_SIZE.HEIGHT },
             scale: { x: 1.5, y: 1.5 },
             health: 100,
             maxHealth: 100,
             weight: 10000000000000000000,
             movableRate: 0,
+            tileNumber: 0,
             position: { x: x * (define_1.TILE_SIZE.WIDTH), y: y * (define_1.TILE_SIZE.HEIGHT) },
             vector: { x: 0, y: 0 },
             forceVector: { x: 0, y: 0 },
@@ -477,6 +510,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const mapGenerator_1 = __webpack_require__(/*! ./class/mapGenerator */ "./src/game/class/mapGenerator.ts");
 const collisionEngine_1 = __webpack_require__(/*! ./class/collisionEngine */ "./src/game/class/collisionEngine.ts");
+const define_1 = __webpack_require__(/*! ./define */ "./src/game/define.ts");
 class GameLogic {
     makeWorldMap(width, height) {
         const mapGenerator = new mapGenerator_1.default();
@@ -517,8 +551,8 @@ class GameLogic {
     }
     getTiles(character) {
         const result = [];
-        const pos = { x: Math.round(character.position.x / 24) - 2, y: Math.round(character.position.y / 24) - 2 };
-        const size = { x: Math.round(character.size.x / 24 + 0.5) + 4, y: Math.round(character.size.y / 24 + 0.5) + 4 };
+        const pos = { x: Math.round(character.position.x / define_1.TILE_SIZE.WIDTH) - 2, y: Math.round(character.position.y / define_1.TILE_SIZE.HEIGHT) - 2 };
+        const size = { x: Math.round(character.size.x / define_1.TILE_SIZE.WIDTH + 0.5) + 4, y: Math.round(character.size.y / define_1.TILE_SIZE.HEIGHT + 0.5) + 4 };
         for (let i = pos.x; i < pos.x + size.x; i++) {
             for (let j = pos.y; j < pos.y + size.y; j++) {
                 if (this.gameData.data['tiles'][i + j * this.gameData.worldProperties.width]) {
@@ -660,12 +694,13 @@ class GameServer {
                 id: socket.id,
                 class: 'archer',
                 objectType: 'characters',
-                size: { x: 16, y: 16 },
+                size: { x: 28, y: 76 },
                 scale: { x: 1, y: 1 },
                 health: 100,
                 maxHealth: 100,
                 weight: 1,
                 movableRate: 0,
+                land: false,
                 position: { x: (room.members.length - 1) * 16, y: 0 },
                 vector: { x: 0, y: 0 },
                 forceVector: { x: 0, y: 0.0005 },
@@ -678,7 +713,6 @@ class GameServer {
         room.gameLogic.runCommand(command, Date.now());
     }
     broadcast(socket, room, message, date) {
-        console.log('broadcast');
         this.io.in(room.name).emit('broadcast', message, date);
         const command = JSON.parse(message);
         room.gameLogic.runCommand(command, date);
@@ -686,18 +720,21 @@ class GameServer {
     keydown(socket, room, keycode) {
         // console.log(`keyDown: ${keycode} / id: ${socket.id}`);
         if (keycode === 38) {
-            const command2 = {
-                script: 'setForceVector',
-                data: {
-                    id: socket.id,
-                    objectType: 'characters',
-                    position: room.gameData.data.characters[socket.id].position,
-                    vector: { x: room.gameData.data.characters[socket.id].vector.x, y: -0.15 },
-                    forceVector: { x: room.gameData.data.characters[socket.id].forceVector.x, y: 0.0002 }
-                }
-            };
-            this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
-            room.gameLogic.runCommand(command2, Date.now());
+            if (room.gameData.data.characters[socket.id].land) {
+                const command2 = {
+                    script: 'setForceVector',
+                    data: {
+                        id: socket.id,
+                        objectType: 'characters',
+                        position: room.gameData.data.characters[socket.id].position,
+                        vector: { x: room.gameData.data.characters[socket.id].vector.x, y: -0.15 },
+                        forceVector: { x: room.gameData.data.characters[socket.id].forceVector.x, y: 0.0002 }
+                    }
+                };
+                room.gameData.data.characters[socket.id].land = false;
+                this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
+                room.gameLogic.runCommand(command2, Date.now());
+            }
         }
         else if (keycode === 39) {
             const command2 = {
@@ -706,7 +743,7 @@ class GameServer {
                     id: socket.id,
                     objectType: 'characters',
                     position: room.gameData.data.characters[socket.id].position,
-                    vector: { x: 0.1, y: room.gameData.data.characters[socket.id].vector.y }
+                    vector: { x: 0.15, y: room.gameData.data.characters[socket.id].vector.y }
                 }
             };
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
@@ -719,7 +756,7 @@ class GameServer {
                     id: socket.id,
                     objectType: 'characters',
                     position: room.gameData.data.characters[socket.id].position,
-                    vector: { x: -0.1, y: room.gameData.data.characters[socket.id].vector.y }
+                    vector: { x: -0.15, y: room.gameData.data.characters[socket.id].vector.y }
                 }
             };
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
