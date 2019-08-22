@@ -46,8 +46,8 @@ export default class MapGenerator {
             }
         }
 
-        map['start'] = this.endTile(width * TILE_SIZE.WIDTH + 1, 0, height+defaultSkyHeight * TILE_SIZE.HEIGHT);
-        map['end'] = this.endTile(-1, 0, height+defaultSkyHeight * TILE_SIZE.HEIGHT);
+        map['start'] = this.endTile(width * TILE_SIZE.WIDTH, 0, height+defaultSkyHeight * TILE_SIZE.HEIGHT);
+        map['end'] = this.endTile(0, 0, height+defaultSkyHeight * TILE_SIZE.HEIGHT);
 
         return {
             map: map,

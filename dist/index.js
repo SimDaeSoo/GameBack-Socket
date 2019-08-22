@@ -332,8 +332,8 @@ class MapGenerator {
                 delete map[key];
             }
         }
-        map['start'] = this.endTile(width * define_1.TILE_SIZE.WIDTH + 1, 0, height + defaultSkyHeight * define_1.TILE_SIZE.HEIGHT);
-        map['end'] = this.endTile(-1, 0, height + defaultSkyHeight * define_1.TILE_SIZE.HEIGHT);
+        map['start'] = this.endTile(width * define_1.TILE_SIZE.WIDTH, 0, height + defaultSkyHeight * define_1.TILE_SIZE.HEIGHT);
+        map['end'] = this.endTile(0, 0, height + defaultSkyHeight * define_1.TILE_SIZE.HEIGHT);
         return {
             map: map,
             worldProperties: {
