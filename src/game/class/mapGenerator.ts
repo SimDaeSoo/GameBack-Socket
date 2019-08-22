@@ -46,6 +46,9 @@ export default class MapGenerator {
             }
         }
 
+        map['start'] = this.endTile(width * TILE_SIZE.WIDTH + 1, 0, height+defaultSkyHeight * TILE_SIZE.HEIGHT);
+        map['end'] = this.endTile(-1, 0, height+defaultSkyHeight * TILE_SIZE.HEIGHT);
+
         return {
             map: map,
             worldProperties: {
@@ -77,6 +80,30 @@ export default class MapGenerator {
             tileNumber: 0,
 
             position: { x: x * (TILE_SIZE.WIDTH), y: y * (TILE_SIZE.HEIGHT) },
+            vector: { x: 0, y: 0 },
+            forceVector: { x: 0, y: 0 },
+            flip: { x: false, y: false },
+            rotation: 0,
+            rotationVector: 0
+        }
+
+        return tileProperties;
+    }
+
+    // TODO 변경
+    public endTile(x: number, y: number, height: number): any {
+        const tileProperties: any = {
+            class: 'dirt',
+            objectType: 'tiles',
+            size: { x: 1, y: height },
+            scale: { x: 0, y: 0 },
+            health: Number.MAX_VALUE,
+            maxHealth: Number.MAX_VALUE,
+            weight: 10000000000000000000,
+            movableRate: 0,
+            tileNumber: 0,
+
+            position: { x: x, y: y },
             vector: { x: 0, y: 0 },
             forceVector: { x: 0, y: 0 },
             flip: { x: false, y: false },

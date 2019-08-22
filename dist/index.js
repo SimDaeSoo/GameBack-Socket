@@ -169,7 +169,7 @@ class CollisionEngine {
             const vectorA = objA.vector.y + objB.weight * (objB.vector.y - objA.vector.y) / (objA.weight + objB.weight) * 2;
             objA.position.y += objA.vector.y * dt + (collisionResult.direction.up ? 0.15 : -0.15);
             objA.vector.y = CollisionEngine.translateTinyValue(vectorA) * 0;
-            objA.land = true;
+            objA.land = collisionResult.direction.down;
         }
         return {
             objA: objA,
@@ -332,6 +332,8 @@ class MapGenerator {
                 delete map[key];
             }
         }
+        map['start'] = this.endTile(width * define_1.TILE_SIZE.WIDTH + 1, 0, height + defaultSkyHeight * define_1.TILE_SIZE.HEIGHT);
+        map['end'] = this.endTile(-1, 0, height + defaultSkyHeight * define_1.TILE_SIZE.HEIGHT);
         return {
             map: map,
             worldProperties: {
@@ -359,6 +361,27 @@ class MapGenerator {
             movableRate: 0,
             tileNumber: 0,
             position: { x: x * (define_1.TILE_SIZE.WIDTH), y: y * (define_1.TILE_SIZE.HEIGHT) },
+            vector: { x: 0, y: 0 },
+            forceVector: { x: 0, y: 0 },
+            flip: { x: false, y: false },
+            rotation: 0,
+            rotationVector: 0
+        };
+        return tileProperties;
+    }
+    // TODO 변경
+    endTile(x, y, height) {
+        const tileProperties = {
+            class: 'dirt',
+            objectType: 'tiles',
+            size: { x: 1, y: height },
+            scale: { x: 0, y: 0 },
+            health: Number.MAX_VALUE,
+            maxHealth: Number.MAX_VALUE,
+            weight: 10000000000000000000,
+            movableRate: 0,
+            tileNumber: 0,
+            position: { x: x, y: y },
             vector: { x: 0, y: 0 },
             forceVector: { x: 0, y: 0 },
             flip: { x: false, y: false },
@@ -505,7 +528,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mapGenerator_1 = __webpack_require__(/*! ./class/mapGenerator */ "./src/game/class/mapGenerator.ts");
 const collisionEngine_1 = __webpack_require__(/*! ./class/collisionEngine */ "./src/game/class/collisionEngine.ts");
 const define_1 = __webpack_require__(/*! ./define */ "./src/game/define.ts");
-class GameLogic {
+const events_1 = __webpack_require__(/*! events */ "events");
+class GameLogic extends events_1.EventEmitter {
     makeWorldMap(width, height) {
         const mapGenerator = new mapGenerator_1.default();
         const worldMap = mapGenerator.generate(width, height);
@@ -513,6 +537,7 @@ class GameLogic {
             this.gameData.insertData(key, worldMap.map[key]);
         }
         this.gameData.worldProperties = worldMap.worldProperties;
+        this.emit('makeWorldMap');
     }
     /* ----------------------- Logic ----------------------- */
     update(dt) {
@@ -580,6 +605,7 @@ class GameLogic {
     }
     setWorldProperties(worldProperties) {
         this.gameData.worldProperties = worldProperties;
+        this.emit('setWorldProperties');
     }
     /* ----------------------- Command ----------------------- */
     addCharacter(data, dt) {
@@ -590,9 +616,11 @@ class GameLogic {
         data.vector.x += dt * data.forceVector.x;
         data.vector.y += dt * data.forceVector.y;
         this.gameData.insertData(data.id, data);
+        this.emit('addCharacter');
     }
     deleteCharacter(data, dt) {
         this.gameData.deleteData(data.id, data.objectType);
+        this.emit('deleteCharacter');
     }
     setVector(data, dt) {
         data.position.x += dt * data.vector.x;
@@ -1243,6 +1271,17 @@ module.exports = require("body-parser");
 /***/ (function(module, exports) {
 
 module.exports = require("debug");
+
+/***/ }),
+
+/***/ "events":
+/*!*************************!*\
+  !*** external "events" ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("events");
 
 /***/ }),
 

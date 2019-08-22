@@ -2,8 +2,9 @@ import GameData from "./gameData";
 import MapGenerator from "./class/mapGenerator";
 import CollisionEngine from './class/collisionEngine';
 import { TILE_SIZE } from "./define";
+import { EventEmitter } from "events";
 
-export default class GameLogic {
+export default class GameLogic extends EventEmitter {
     public gameData: GameData;
 
     /* ----------------------- Server ----------------------- */
@@ -18,6 +19,7 @@ export default class GameLogic {
         }
 
         this.gameData.worldProperties = worldMap.worldProperties;
+        this.emit('makeWorldMap');
     }
 
     /* ----------------------- Logic ----------------------- */
@@ -96,6 +98,7 @@ export default class GameLogic {
 
     public setWorldProperties(worldProperties: any): void {
         this.gameData.worldProperties = worldProperties;
+        this.emit('setWorldProperties');
     }
 
     /* ----------------------- Command ----------------------- */
@@ -108,10 +111,12 @@ export default class GameLogic {
         data.vector.x += dt * data.forceVector.x;
         data.vector.y += dt * data.forceVector.y;
         this.gameData.insertData(data.id, data);
+        this.emit('addCharacter');
     }
 
     public deleteCharacter(data: any, dt: number): void {
         this.gameData.deleteData(data.id, data.objectType);
+        this.emit('deleteCharacter');
     }
 
     public setVector(data: any, dt: number): void {
