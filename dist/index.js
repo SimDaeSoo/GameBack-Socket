@@ -332,8 +332,6 @@ class MapGenerator {
                 delete map[key];
             }
         }
-        map['start'] = this.endTile(width * define_1.TILE_SIZE.WIDTH, 0, height + defaultSkyHeight * define_1.TILE_SIZE.HEIGHT);
-        map['end'] = this.endTile(0, 0, height + defaultSkyHeight * define_1.TILE_SIZE.HEIGHT);
         return {
             map: map,
             worldProperties: {
@@ -545,6 +543,7 @@ class GameLogic extends events_1.EventEmitter {
             this.collision(dt);
             this.applyVector(dt);
             this.applyForceVector(dt);
+            this.interpolationCharacterPosition(dt);
         });
     }
     collision(dt) {
@@ -606,6 +605,17 @@ class GameLogic extends events_1.EventEmitter {
     setWorldProperties(worldProperties) {
         this.gameData.worldProperties = worldProperties;
         this.emit('setWorldProperties');
+    }
+    interpolationCharacterPosition(dt) {
+        for (let id in this.gameData.data['characters']) {
+            const character = this.gameData.data['characters'][id];
+            if (character.position.x < 0) {
+                character.position.x = 0;
+            }
+            else if (character.position.x + character.size.x > this.gameData.worldProperties.width * define_1.TILE_SIZE.WIDTH) {
+                character.position.x = this.gameData.worldProperties.width * define_1.TILE_SIZE.WIDTH - character.size.x;
+            }
+        }
     }
     /* ----------------------- Command ----------------------- */
     addCharacter(data, dt) {
