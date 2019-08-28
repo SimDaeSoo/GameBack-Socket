@@ -99,8 +99,8 @@ class GameServer {
                         id: socket.id,
                         objectType: 'characters',
                         position: room.gameData.data.characters[socket.id].position,
-                        vector: { x: room.gameData.data.characters[socket.id].vector.x, y: -0.15 },
-                        forceVector: { x: room.gameData.data.characters[socket.id].forceVector.x, y: 0.0002 }
+                        vector: { x: room.gameData.data.characters[socket.id].vector.x, y: -0.35 },
+                        forceVector: { x: room.gameData.data.characters[socket.id].forceVector.x, y: 0.001 }
                     }
                 };
                 room.gameData.data.characters[socket.id].land = false;
