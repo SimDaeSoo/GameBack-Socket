@@ -527,6 +527,7 @@ const mapGenerator_1 = __webpack_require__(/*! ./class/mapGenerator */ "./src/ga
 const collisionEngine_1 = __webpack_require__(/*! ./class/collisionEngine */ "./src/game/class/collisionEngine.ts");
 const define_1 = __webpack_require__(/*! ./define */ "./src/game/define.ts");
 const events_1 = __webpack_require__(/*! events */ "events");
+const utils_1 = __webpack_require__(/*! ../utils/utils */ "./src/utils/utils.ts");
 class GameLogic extends events_1.EventEmitter {
     makeWorldMap(width, height) {
         const mapGenerator = new mapGenerator_1.default();
@@ -630,7 +631,19 @@ class GameLogic extends events_1.EventEmitter {
     }
     deleteCharacter(data, dt) {
         this.gameData.deleteData(data.id, data.objectType);
+        if (data.objectType === 'tiles') {
+            this.changeTile(data.id);
+        }
         this.emit('deleteCharacter');
+    }
+    changeTile(id) {
+        const width = this.gameData.worldProperties.width;
+        const tiles = [Number(id) - 1, Number(id) + 1, Number(id) - width, Number(id) + width];
+        tiles.forEach((key) => {
+            if (this.gameData.data['tiles'][key.toString()] !== undefined) {
+                utils_1.changeTileNumber(this.gameData.data['tiles'], key.toString(), width);
+            }
+        });
     }
     setVector(data, dt) {
         data.position.x += dt * data.vector.x;
@@ -870,7 +883,7 @@ class Room {
         this.gameLogic.gameData = this.gameData;
         // 임시로 추가. TODO: 제거할 것.
         utils_1.log({ text: `Make World...` });
-        this.gameLogic.makeWorldMap(115, 20);
+        this.gameLogic.makeWorldMap(154, 24);
         utils_1.log({ text: `Done...` });
         this.updater.onUpdate((dt) => __awaiter(this, void 0, void 0, function* () {
             yield this.gameLogic.update(dt);
@@ -1244,6 +1257,7 @@ function changeTileNumber(map, key, width) {
     else {
         map[key].tileNumber += 12;
     }
+    return map[key].tileNumber;
 }
 exports.changeTileNumber = changeTileNumber;
 

@@ -39,7 +39,7 @@ export class Room {
 
         // 임시로 추가. TODO: 제거할 것.
         log({ text: `Make World...` });
-        this.gameLogic.makeWorldMap(115, 20);
+        this.gameLogic.makeWorldMap(154, 24);
         log({ text: `Done...` });
         
         this.updater.onUpdate(async (dt: number): Promise<void> => {
