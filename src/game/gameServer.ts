@@ -28,6 +28,11 @@ class GameServer {
         socket.on('keydown', (keycode: number): void => { this.keydown(socket, room, keycode); });
         socket.on('keyup', (keycode: number): void => { this.keyup(socket, room, keycode); });
         socket.on('disconnect', (): void => { this.disconnect(socket, room); });
+        socket.on('pingTest', (date: number): void => { this.ping(socket); });
+    }
+
+    private ping(socket: socketIO.Socket): void {
+        socket.emit('pingTest', Date.now());
     }
 
     private disconnect(socket: socketIO.Socket, room: Room): void {
