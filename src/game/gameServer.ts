@@ -38,8 +38,7 @@ class GameServer {
                 objectType: 'characters'
             }
         };
-        this.io.in(room.name).emit('broadcast', JSON.stringify(command), Date.now());
-        room.gameLogic.runCommand(command, Date.now());
+        this.broadcast(socket, room, JSON.stringify(command), Date.now());
 
         warn({ text: `Disconnect: ${socket.id}` });
         this.roomManager.disconnect(socket);
@@ -78,73 +77,66 @@ class GameServer {
                 rotationVector: 0
             }
         };
-        this.io.in(room.name).emit('broadcast', JSON.stringify(command), Date.now());
-        room.gameLogic.runCommand(command, Date.now());
+        this.broadcast(socket, room, JSON.stringify(command), Date.now());
     }
 
     private broadcast(socket: socketIO.Socket, room: Room, message: string, date: number): void {
+        // setTimeout(() => {
         this.io.in(room.name).emit('broadcast', message, date);
-        
+        // }, 40);
         const command: any = JSON.parse(message);
         room.gameLogic.runCommand(command, date);
     }
 
     private keydown(socket: socketIO.Socket, room: Room, keycode: number): void {
-        // console.log(`keyDown: ${keycode} / id: ${socket.id}`);
         if (keycode === 38) {
             if (room.gameData.data.characters[socket.id].land) {
-                const command2 = {
+                room.gameData.data.characters[socket.id].land = false;
+                const command = {
                     script: 'setState',
                     data: Object.assign(room.gameData.data.characters[socket.id], {
                         vector: { x: room.gameData.data.characters[socket.id].vector.x, y: -0.35 },
                         forceVector: { x: room.gameData.data.characters[socket.id].forceVector.x, y: 0.001 }
                     })
                 };
-                room.gameData.data.characters[socket.id].land = false;
-                this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
-                room.gameLogic.runCommand(command2, Date.now());
+                this.broadcast(socket, room, JSON.stringify(command), Date.now());
             }
         } else if (keycode === 39) {
-            const command2 = {
+            const command = {
                 script: 'setState',
                 data: Object.assign(room.gameData.data.characters[socket.id], {
                     vector: { x: 0.15, y: room.gameData.data.characters[socket.id].vector.y }
                 })
             };
-            this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
-            room.gameLogic.runCommand(command2, Date.now());
+            this.broadcast(socket, room, JSON.stringify(command), Date.now());
         } else if (keycode === 37) {
-            const command2 = {
+            const command = {
                 script: 'setState',
                 data: Object.assign(room.gameData.data.characters[socket.id], {
                     vector: { x: -0.15, y: room.gameData.data.characters[socket.id].vector.y }
                 })
             };
-            this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
-            room.gameLogic.runCommand(command2, Date.now());
+            this.broadcast(socket, room, JSON.stringify(command), Date.now());
         }
     }
 
     private keyup(socket: socketIO.Socket, room: Room, keycode: number): void {
-        // console.log(`keyup: ${keycode} / id: ${socket.id}`);
         if (keycode === 39 && room.gameData.data.characters[socket.id].vector.x > 0) {
-            const command2 = {
+            const command = {
                 script: 'setState',
                 data: Object.assign(room.gameData.data.characters[socket.id], {
                     vector: { x: 0, y: room.gameData.data.characters[socket.id].vector.y }
                 })
             };
-            this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
-            room.gameLogic.runCommand(command2, Date.now());
+            this.broadcast(socket, room, JSON.stringify(command), Date.now());
         } else if (keycode === 37 && room.gameData.data.characters[socket.id].vector.x < 0) {
-            const command2 = {
+            const command = {
                 script: 'setState',
                 data: Object.assign(room.gameData.data.characters[socket.id], {
                     vector: { x: 0, y: room.gameData.data.characters[socket.id].vector.y }
                 })
             };
-            this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
-            room.gameLogic.runCommand(command2, Date.now());
+            this.broadcast(socket, room, JSON.stringify(command), Date.now());
         }
     }
 }
