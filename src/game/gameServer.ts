@@ -94,14 +94,11 @@ class GameServer {
         if (keycode === 38) {
             if (room.gameData.data.characters[socket.id].land) {
                 const command2 = {
-                    script: 'setForceVector',
-                    data: {
-                        id: socket.id,
-                        objectType: 'characters',
-                        position: room.gameData.data.characters[socket.id].position,
+                    script: 'setState',
+                    data: Object.assign(room.gameData.data.characters[socket.id], {
                         vector: { x: room.gameData.data.characters[socket.id].vector.x, y: -0.35 },
                         forceVector: { x: room.gameData.data.characters[socket.id].forceVector.x, y: 0.001 }
-                    }
+                    })
                 };
                 room.gameData.data.characters[socket.id].land = false;
                 this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
@@ -109,25 +106,19 @@ class GameServer {
             }
         } else if (keycode === 39) {
             const command2 = {
-                script: 'setVector',
-                data: {
-                    id: socket.id,
-                    objectType: 'characters',
-                    position: room.gameData.data.characters[socket.id].position,
+                script: 'setState',
+                data: Object.assign(room.gameData.data.characters[socket.id], {
                     vector: { x: 0.15, y: room.gameData.data.characters[socket.id].vector.y }
-                }
+                })
             };
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
             room.gameLogic.runCommand(command2, Date.now());
         } else if (keycode === 37) {
             const command2 = {
-                script: 'setVector',
-                data: {
-                    id: socket.id,
-                    objectType: 'characters',
-                    position: room.gameData.data.characters[socket.id].position,
+                script: 'setState',
+                data: Object.assign(room.gameData.data.characters[socket.id], {
                     vector: { x: -0.15, y: room.gameData.data.characters[socket.id].vector.y }
-                }
+                })
             };
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
             room.gameLogic.runCommand(command2, Date.now());
@@ -138,25 +129,19 @@ class GameServer {
         // console.log(`keyup: ${keycode} / id: ${socket.id}`);
         if (keycode === 39 && room.gameData.data.characters[socket.id].vector.x > 0) {
             const command2 = {
-                script: 'setVector',
-                data: {
-                    id: socket.id,
-                    objectType: 'characters',
-                    position: room.gameData.data.characters[socket.id].position,
+                script: 'setState',
+                data: Object.assign(room.gameData.data.characters[socket.id], {
                     vector: { x: 0, y: room.gameData.data.characters[socket.id].vector.y }
-                }
+                })
             };
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
             room.gameLogic.runCommand(command2, Date.now());
         } else if (keycode === 37 && room.gameData.data.characters[socket.id].vector.x < 0) {
             const command2 = {
-                script: 'setVector',
-                data: {
-                    id: socket.id,
-                    objectType: 'characters',
-                    position: room.gameData.data.characters[socket.id].position,
+                script: 'setState',
+                data: Object.assign(room.gameData.data.characters[socket.id], {
                     vector: { x: 0, y: room.gameData.data.characters[socket.id].vector.y }
-                }
+                })
             };
             this.io.in(room.name).emit('broadcast', JSON.stringify(command2), Date.now());
             room.gameLogic.runCommand(command2, Date.now());
