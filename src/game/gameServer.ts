@@ -86,9 +86,9 @@ class GameServer {
     }
 
     private broadcast(socket: socketIO.Socket, room: Room, message: string, date: number): void {
-        // setTimeout(() => {
+        setTimeout(() => {
         this.io.in(room.name).emit('broadcast', message, date);
-        // }, 40);
+        }, 40);
         const command: any = JSON.parse(message);
         room.gameLogic.runCommand(command, date);
     }
