@@ -57,7 +57,7 @@ class GameServer {
             script: 'setWorldProperties',
             data: room.gameData.worldProperties
         };
-        this.io.in(room.name).emit('broadcast', JSON.stringify(command3), Date.now());
+        socket.emit('broadcast', JSON.stringify(command3), Date.now());
 
         const command = {
             script: 'addCharacter',
