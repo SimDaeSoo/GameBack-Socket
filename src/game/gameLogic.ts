@@ -8,6 +8,7 @@ import { State } from './class/state';
 
 export default class GameLogic extends EventEmitter {
     public gameData: GameData;
+    public stateMap: {[type: string]: {[id: string]: State}} = { tiles: {}, objects: {}, characters: {}};
     public lastUpdate: number = Date.now();
 
     /* ----------------------- Server ----------------------- */
@@ -25,26 +26,6 @@ export default class GameLogic extends EventEmitter {
         this.emit('makeWorldMap');
     }
 
-    public stateMap: {[type: string]: {[id: string]: State}} = { tiles: {}, objects: {}, characters: {}};
-
-    public changeState(): void {
-        for (let type in this.stateMap) {
-            for (let id in this.stateMap[type]) {
-                const object: any = this.gameData.data[type][id];
-
-                if (object !== undefined) {
-                    const prev: string = this.gameData.data[type][id].currentState
-                    this.gameData.data[type][id].currentState = this.stateMap[type][id].mutation(object);
-
-                    if (prev !== this.gameData.data[type][id].currentState) {
-                        const command = { script: 'setState', data: this.gameData.data[type][id] };
-                        this.io.emit('broadcast', JSON.stringify(command), Date.now());
-                    }
-                }
-            }
-        }
-    }
-
     /* ----------------------- Logic ----------------------- */
 
     public async update(dt: number): Promise<void> {
@@ -54,6 +35,18 @@ export default class GameLogic extends EventEmitter {
         this.applyForceVector(dt);
         this.interpolationCharacterPosition(dt);
         this.changeState();
+    }
+
+    public changeState(): void {
+        for (let type in this.stateMap) {
+            for (let id in this.stateMap[type]) {
+                const object: any = this.gameData.data[type][id];
+
+                if (object !== undefined) {
+                    this.gameData.data[type][id].currentState = this.stateMap[type][id].mutation(object);
+                }
+            }
+        }
     }
 
     private collision(dt: number): void {
@@ -212,7 +205,7 @@ export default class GameLogic extends EventEmitter {
         object.vector.y = data.vector.y + dt * data.forceVector.y;
         object.forceVector.x = data.forceVector.x;
         object.forceVector.y = data.forceVector.y;
-        object.currentState = data.currentState;
+        object.land = data.land;
         this.gameData.dirty(data.id, data.objectType);
     }
 
