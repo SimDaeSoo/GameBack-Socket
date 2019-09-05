@@ -75,6 +75,7 @@ export default class MapGenerator {
             weight: 10000000000000000000,
             movableRate: 0,
             tileNumber: 0,
+            currentState: 'idle',
 
             position: { x: x * (TILE_SIZE.WIDTH), y: y * (TILE_SIZE.HEIGHT) },
             vector: { x: 0, y: 0 },
@@ -99,6 +100,7 @@ export default class MapGenerator {
             weight: 10000000000000000000,
             movableRate: 0,
             tileNumber: 0,
+            currentState: 'idle',
 
             position: { x: x, y: y },
             vector: { x: 0, y: 0 },

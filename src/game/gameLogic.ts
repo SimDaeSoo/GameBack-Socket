@@ -4,6 +4,7 @@ import CollisionEngine from './class/collisionEngine';
 import { TILE_SIZE } from "./define";
 import { EventEmitter } from "events";
 import { changeTileNumber } from "../utils/utils";
+import { State } from './class/state';
 
 export default class GameLogic extends EventEmitter {
     public gameData: GameData;
@@ -24,6 +25,26 @@ export default class GameLogic extends EventEmitter {
         this.emit('makeWorldMap');
     }
 
+    public stateMap: {[type: string]: {[id: string]: State}} = { tiles: {}, objects: {}, characters: {}};
+
+    public changeState(): void {
+        for (let type in this.stateMap) {
+            for (let id in this.stateMap[type]) {
+                const object: any = this.gameData.data[type][id];
+
+                if (object !== undefined) {
+                    const prev: string = this.gameData.data[type][id].currentState
+                    this.gameData.data[type][id].currentState = this.stateMap[type][id].mutation(object);
+
+                    if (prev !== this.gameData.data[type][id].currentState) {
+                        const command = { script: 'setState', data: this.gameData.data[type][id] };
+                        this.io.emit('broadcast', JSON.stringify(command), Date.now());
+                    }
+                }
+            }
+        }
+    }
+
     /* ----------------------- Logic ----------------------- */
 
     public async update(dt: number): Promise<void> {
@@ -32,6 +53,7 @@ export default class GameLogic extends EventEmitter {
         this.applyVector(dt);
         this.applyForceVector(dt);
         this.interpolationCharacterPosition(dt);
+        this.changeState();
     }
 
     private collision(dt: number): void {
@@ -130,6 +152,19 @@ export default class GameLogic extends EventEmitter {
         data.vector.y += dt * data.forceVector.y;
         this.gameData.insertData(data.id, data);
         this.emit('addCharacter');
+
+        // Test
+        const state: State = new State();
+        state.registState('idle');
+        state.registState('jump');
+        state.registState('walk');
+        state.registMutate('idle', { mutateState: 'walk', conditions: [{ arg: 'vector.x', sign: '!==', value: 0}]});
+        state.registMutate('idle', { mutateState: 'jump', conditions: [{ arg: 'land', sign: '===', value: 'false'}]});
+        state.registMutate('jump', { mutateState: 'idle', conditions: [{ arg: 'land', sign: '===', value: 'true'}]});
+        state.registMutate('walk', { mutateState: 'idle', conditions: [{ arg: 'vector.x', sign: '===', value: 0}]});
+        state.registMutate('walk', { mutateState: 'jump', conditions: [{ arg: 'land', sign: '===', value: 'false'}]});
+        state.setState('idle');
+        this.stateMap[data.objectType][data.id] = state;
     }
 
     public deleteCharacter(data: any, dt: number): void {
@@ -138,6 +173,9 @@ export default class GameLogic extends EventEmitter {
             this.changeTile(data.id);
         }
         this.emit('deleteCharacter');
+
+        // Test
+        delete this.stateMap[data.objectType][data.id];
     }
 
     public changeTile(id: string): void {
@@ -153,6 +191,8 @@ export default class GameLogic extends EventEmitter {
 
     public setState(data: any, dt: number): void {
         const object: any = this.gameData.data[data.objectType][data.id];
+        if (!object) return;
+        
         object.position.x = data.position.x;
         object.position.y = data.position.y;
 
@@ -172,6 +212,7 @@ export default class GameLogic extends EventEmitter {
         object.vector.y = data.vector.y + dt * data.forceVector.y;
         object.forceVector.x = data.forceVector.x;
         object.forceVector.y = data.forceVector.y;
+        object.currentState = data.currentState;
         this.gameData.dirty(data.id, data.objectType);
     }
 

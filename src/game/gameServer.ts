@@ -74,6 +74,7 @@ class GameServer {
                 weight: 1,
                 movableRate: 0,
                 land: false,
+                currentState: 'idle',
 
                 position: { x: (room.members.length - 1) * 16, y: 0 },
                 vector: { x: 0, y: 0 },
