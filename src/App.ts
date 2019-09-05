@@ -25,9 +25,10 @@ class App {
         this.express.use(bodyParser.urlencoded({ extended: false, limit: '10mb', parameterLimit: 1000000 }));
         
         // CORS 문제.
-        this.express.use('/', (req: Request, res: Response, next: NextFunction) => {
-            res.header("Access-Control-Allow-Origin", "*");
-            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        this.express.all('*', (req: Request, res: Response, next: NextFunction) => {
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Headers', 'Content-Type,Content-Length, Authorization, Accept,X-Requested-With');
+            res.header('Access-Control-Allow-Methods', 'POST,GET');
             next();
         });
     }
