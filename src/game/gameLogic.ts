@@ -7,6 +7,7 @@ import { changeTileNumber } from "../utils/utils";
 
 export default class GameLogic extends EventEmitter {
     public gameData: GameData;
+    public lastUpdate: number = Date.now();
 
     /* ----------------------- Server ----------------------- */
     public io: SocketIO.Namespace;
@@ -26,6 +27,7 @@ export default class GameLogic extends EventEmitter {
     /* ----------------------- Logic ----------------------- */
 
     public async update(dt: number): Promise<void> {
+        this.lastUpdate = Date.now();
         this.collision(dt);
         this.applyVector(dt);
         this.applyForceVector(dt);
@@ -175,7 +177,7 @@ export default class GameLogic extends EventEmitter {
 
     public runCommand(command: any, date: number): void {
         if (typeof((this as any)[command.script]) === 'function') {
-            const dt: number = Date.now() - date;
+            const dt: number = this.lastUpdate - date;
             (this as any)[command.script](command.data, dt);
         }
     }

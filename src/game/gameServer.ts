@@ -7,6 +7,7 @@ import { Room } from './room';
 class GameServer {
     public io: socketIO.Server;
     public roomManager: RoomManager = new RoomManager();
+    private PING_TEST: number = 0;
     
     // TODO 여기 하단 한번 정리하자.
     public createSocketServer(server: http.Server): void {
@@ -88,7 +89,7 @@ class GameServer {
     private broadcast(socket: socketIO.Socket, room: Room, message: string, date: number): void {
         setTimeout(() => {
         this.io.in(room.name).emit('broadcast', message, date);
-        }, 40);
+        }, this.PING_TEST);
         const command: any = JSON.parse(message);
         room.gameLogic.runCommand(command, date);
     }
