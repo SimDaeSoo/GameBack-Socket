@@ -21,11 +21,13 @@ export default class MapGenerator {
                     if (Math.random() <= 0.91 - 1.1*(y / (20+defaultSkyHeight)) || (map[x + (y-1) * width] !== undefined && map[x-1 + y * width] !== undefined)) {
                         const positionToIndex: number = x + y * width;
                         map[positionToIndex] = this.newTile(x, y);
+                        map[positionToIndex].id = positionToIndex;
                     }
                     if (x > 0) {
                         if (Math.random() <= 0.91 - 1.1*(y / (20+defaultSkyHeight)) || (map[(width-x - 1) + (y-1) * width] !== undefined && map[(width-x) + y * width] !== undefined)) {
                             const positionToIndex = (width - x - 1) + y * width;
                             map[positionToIndex] = this.newTile((width - x - 1), y);
+                            map[positionToIndex].id = positionToIndex;
                         }
                     }
                 }
@@ -36,6 +38,7 @@ export default class MapGenerator {
             for (let x=0; x<width; x++) {
                 const positionToIndex: number = x + y * width;
                 map[positionToIndex] = this.newTile(x, y);
+                map[positionToIndex].id = positionToIndex;
             }
         }
 
@@ -47,12 +50,80 @@ export default class MapGenerator {
         }
 
         return {
-            map: map,
+            map: this.makingGroup(map, width, height),
             worldProperties: {
                 width: width,
                 height: height + defaultSkyHeight
             }
         };
+    }
+
+    private makingGroup(map: any, width: number, height: number): any {
+        const defaultSkyHeight: number = 17;
+
+        for (let y=defaultSkyHeight; y<height+defaultSkyHeight; y++) {
+            let startXAxis: number | undefined;
+            let endXAxis: number | undefined;
+
+            for (let x=0; x<width; x++) {
+                const positionToIndex: number = x + y * width;
+
+                if (map[positionToIndex] !== undefined) {
+                    if (startXAxis === undefined) {
+                        startXAxis = positionToIndex;
+                    }
+                    map[positionToIndex].startXAxis = startXAxis;
+                } else {
+                    startXAxis = undefined;
+                }
+            }
+
+            for (let x=width-1; x>=0; x--) {
+                const positionToIndex: number = x + y * width;
+
+                if (map[positionToIndex] !== undefined) {
+                    if (endXAxis === undefined) {
+                        endXAxis = positionToIndex;
+                    }
+                    map[positionToIndex].endXAxis = endXAxis;
+                } else {
+                    endXAxis = undefined;
+                }
+            }
+        }
+
+        for (let x=0; x<width; x++) {
+            let startYAxis: number | undefined;
+            let endYAxis: number | undefined;
+
+            for (let y=defaultSkyHeight; y<height+defaultSkyHeight; y++) {
+                const positionToIndex: number = x + y * width;
+
+                if (map[positionToIndex] !== undefined) {
+                    if (startYAxis === undefined) {
+                        startYAxis = positionToIndex;
+                    }
+                    map[positionToIndex].startYAxis = startYAxis;
+                } else {
+                    startYAxis = undefined;
+                }
+            }
+
+            for (let y=height+defaultSkyHeight-1; y>=defaultSkyHeight; y--) {
+                const positionToIndex: number = x + y * width;
+
+                if (map[positionToIndex] !== undefined) {
+                    if (endYAxis === undefined) {
+                        endYAxis = positionToIndex;
+                    }
+                    map[positionToIndex].endYAxis = endYAxis;
+                } else {
+                    endYAxis = undefined;
+                }
+            }
+        }
+
+        return map;
     }
 
     public static isDeletedTile(x: number, y: number, baseY: number): boolean {

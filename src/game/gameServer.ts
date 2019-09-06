@@ -78,7 +78,7 @@ class GameServer {
 
                 position: { x: (room.members.length - 1) * 16, y: 0 },
                 vector: { x: 0, y: 0 },
-                forceVector: { x: 0, y: 0.0005 },
+                forceVector: { x: 0, y: 0.001 },
                 flip: { x: false, y: false },
                 rotation: 0,
                 rotationVector: 0
