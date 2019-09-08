@@ -69,10 +69,7 @@ class GameServer {
                 objectType: 'characters',
                 size: { x: 14, y: 68 },
                 scale: { x: 1, y: 1 },
-                health: 100,
-                maxHealth: 100,
                 weight: 1,
-                movableRate: 0,
                 land: false,
                 currentState: 'idle',
 

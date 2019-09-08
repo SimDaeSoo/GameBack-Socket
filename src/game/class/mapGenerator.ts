@@ -141,10 +141,7 @@ export default class MapGenerator {
             objectType: 'tiles',
             size: { x: TILE_SIZE.WIDTH, y: TILE_SIZE.HEIGHT },
             scale: { x: 1.5, y: 1.5},
-            health: 100,
-            maxHealth: 100,
             weight: 10000000000000000000,
-            movableRate: 0,
             tileNumber: 0,
             currentState: 'idle',
 
@@ -166,10 +163,7 @@ export default class MapGenerator {
             objectType: 'tiles',
             size: { x: 1, y: height },
             scale: { x: 0, y: 0 },
-            health: Number.MAX_VALUE,
-            maxHealth: Number.MAX_VALUE,
             weight: 10000000000000000000,
-            movableRate: 0,
             tileNumber: 0,
             currentState: 'idle',
 
