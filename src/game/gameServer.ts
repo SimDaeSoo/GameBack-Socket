@@ -71,14 +71,13 @@ class GameServer {
                 scale: { x: 1, y: 1 },
                 weight: 1,
                 land: false,
-                currentState: 'idle',
 
                 position: { x: (room.members.length - 1) * 16, y: 0 },
                 vector: { x: 0, y: 0 },
                 forceVector: { x: 0, y: 0.001 },
                 flip: { x: false, y: false },
                 rotation: 0,
-                rotationVector: 0
+                rotationVector: 0,
             }
         };
         this.broadcast(socket, room, JSON.stringify(command), Date.now());
