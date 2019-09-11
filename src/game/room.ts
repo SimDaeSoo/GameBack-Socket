@@ -1,7 +1,7 @@
-import GameLogic from "./gameLogic";
-import Updater from "./updater";
-import GameData from "./gameData";
-import { log } from "../utils/utils";
+import GameLogic from './gameLogic';
+import Updater from './updater';
+import GameData from './gameData';
+import { log } from '../utils/utils';
 
 export interface IRoom {
     name: string,
@@ -18,7 +18,6 @@ export class Room {
     public gameLogic: GameLogic;
     public gameData: GameData;
     public updater: Updater;
-    public io: SocketIO.Namespace;
 
     constructor(options?: IRoom) {
         let defaultOptions = Object.assign({
@@ -32,15 +31,11 @@ export class Room {
             this[key] = defaultOptions[key];
         }
 
-        this.gameLogic = new GameLogic();
         this.updater = new Updater();
         this.gameData = new GameData();
+        this.gameData.createWorldData(154, 24);
+        this.gameLogic = new GameLogic();
         this.gameLogic.gameData = this.gameData;
-
-        // 임시로 추가. TODO: 제거할 것.
-        log({ text: `Make World...` });
-        this.gameLogic.makeWorldMap(154, 24);
-        log({ text: `Done...` });
         
         this.updater.onUpdate(async (dt: number): Promise<void> => {
             await this.gameLogic.update(dt);
@@ -65,9 +60,5 @@ export class Room {
 
     public destroy(): void {
         this.updater.stop();
-    }
-
-    public setNamespace(io: SocketIO.Namespace): void {
-        this.io = this.gameLogic.io = io;
     }
 };

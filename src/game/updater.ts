@@ -1,4 +1,4 @@
-import { warn, system } from "../utils/utils";
+import { warn, system } from '../utils/utils';
 
 export default class Updater {
     private time: number = 0;

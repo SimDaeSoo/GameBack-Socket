@@ -21,7 +21,6 @@ class GameServer {
 
     private connection(socket: socketIO.Socket): void {
         const room: Room = this.roomManager.autoMapping(socket);
-        room.setNamespace(this.io.in(room.name));
         log({ text: `Connection: ${socket.id}` });
         
         socket.on('init', (): void => { this.socketInit(socket, room); });
@@ -51,7 +50,7 @@ class GameServer {
     }
 
     private socketInit(socket: socketIO.Socket, room: Room): void {
-        socket.emit('initGameData', JSON.stringify(room.gameData.data));
+        socket.emit('init', JSON.stringify(room.gameData.data));
 
         // TODO 제거.
         const command3 = {

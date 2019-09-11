@@ -1,0 +1,25 @@
+{
+    "idle": {
+        "animation": "idle",
+        "mutations": {
+            "walk": [{ "arg": "data.vector.x", "sign": "!==", "value": 0}],
+            "jump": [{ "arg": "Math.abs(data.vector.y)", "sign": ">=", "value": "0.1"}]
+        },
+        "stateData": { "begin": 0, "end": 1000, "loop": true, "speed": 0.1 }
+    },
+    "jump": {
+        "animation": "jump",
+        "mutations": {
+            "idle": [{ "arg": "Math.abs(data.vector.y)", "sign": "<", "value": "0.04"}]
+        },
+        "stateData": { "begin": 0, "end": 1000, "loop": true, "speed": 0.1 }
+    },
+    "walk": {
+        "animation": "walk",
+        "mutations": {
+            "idle": [{ "arg": "data.vector.x", "sign": "===", "value": 0}],
+            "jump": [{ "arg": "Math.abs(data.vector.y)", "sign": ">=", "value": "0.1"}]
+        },
+        "stateData": { "begin": 0, "end": 1000, "loop": true, "speed": 0.1 }
+    }
+}

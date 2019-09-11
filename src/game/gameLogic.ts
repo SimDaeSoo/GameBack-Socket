@@ -1,28 +1,12 @@
-import GameData from "./gameData";
-import MapGenerator from "./class/mapGenerator";
+import GameData from './gameData';
 import CollisionEngine from './class/collisionEngine';
-import { TILE_SIZE } from "./define";
-import { EventEmitter } from "events";
-import { changeTileNumber } from "../utils/utils";
+import { TILE_SIZE } from './define';
+import { EventEmitter } from 'events';
+import { changeTileNumber } from '../utils/utils';
 
 export default class GameLogic extends EventEmitter {
     public gameData: GameData;
     public lastUpdate: number = Date.now();
-
-    /* ----------------------- Server ----------------------- */
-    public io: SocketIO.Namespace;
-
-    public makeWorldMap(width: number, height: number): void {
-        const mapGenerator: MapGenerator = new MapGenerator();
-        const worldMap: any = mapGenerator.generate(width, height);
-
-        for (let key in worldMap.map) {
-            this.gameData.insertData(key, worldMap.map[key]);
-        }
-
-        this.gameData.worldProperties = worldMap.worldProperties;
-        this.emit('makeWorldMap');
-    }
 
     /* ----------------------- Logic ----------------------- */
 
@@ -32,7 +16,7 @@ export default class GameLogic extends EventEmitter {
         this.applyVector(dt);
         this.applyForceVector(dt);
         this.interpolationCharacterPosition(dt);
-        this.gameData.changeState();
+        this.gameData.updateState();
     }
 
     private collision(dt: number): void {
