@@ -37,7 +37,7 @@
 
     },
     "baseState": "idle",
-    "state": ["idle", "walk", "jump"],
+    "states": ["idle", "walk", "jump"],
     "animations": {
         "idle": {
             "src": "ksh001_idle",

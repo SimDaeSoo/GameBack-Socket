@@ -1,0 +1,21 @@
+{
+    "name": "dirt001",
+    "size": { "x": 24, "y": 24 },
+    "scale": { "x": 1.5, "y": 1.5 },
+    "weight": 10000000000000000000,
+    "baseStat": {
+        "health": 100000000000,
+        "mana": 0,
+        "healthRecovery": 0,
+        "manaRecovery": 0,
+        "STR": 0,
+        "INT": 0,
+        "STA": 0,
+        "AGI": 0,
+        "critical": 0,
+        "criticalDamage": 0,
+        "speed": 0,
+        "armor": 0
+    },
+    "src": ""
+}
