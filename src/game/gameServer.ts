@@ -53,10 +53,7 @@ class GameServer {
         socket.emit('init', JSON.stringify(room.gameData.data));
 
         // TODO 제거.
-        const command3 = {
-            script: 'setWorldProperties',
-            data: room.gameData.worldProperties
-        };
+        const command3 = { script: 'setWorldProperties', data: room.gameData.worldProperties };
         socket.emit('broadcast', JSON.stringify(command3), Date.now());
 
         const command = {

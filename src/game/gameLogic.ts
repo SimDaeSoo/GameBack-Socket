@@ -13,6 +13,8 @@ export default class GameLogic extends EventEmitter {
     public async update(dt: number): Promise<void> {
         this.lastUpdate = Date.now();
         this.collision(dt);
+
+        // 아래 4개 묶어서 Game Data Update로 처리한다.
         this.applyVector(dt);
         this.applyForceVector(dt);
         this.interpolationCharacterPosition(dt);
