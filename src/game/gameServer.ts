@@ -8,13 +8,13 @@ class GameServer {
     public io: socketIO.Server;
     public roomManager: RoomManager = new RoomManager();
     private PING_TEST: number = 0;
-    
+
     // TODO 여기 하단 한번 정리하자.
     public createSocketServer(server: http.Server): void {
         try {
             this.io = socketIO(server, { serveClient: false });
             this.io.on('connection', (socket: socketIO.Socket): void => { this.connection(socket); });
-        } catch(error) {
+        } catch (error) {
             warn({ text: `Error: ${error}` });
         }
     }
@@ -22,7 +22,7 @@ class GameServer {
     private connection(socket: socketIO.Socket): void {
         const room: Room = this.roomManager.autoMapping(socket);
         log({ text: `Connection: ${socket.id}` });
-        
+
         socket.on('init', (): void => { this.socketInit(socket, room); });
         socket.on('broadcast', (message: string, date: number): void => { this.broadcast(socket, room, message, date); });
         socket.on('keydown', (keycode: number): void => { this.keydown(socket, room, keycode); });
@@ -81,7 +81,7 @@ class GameServer {
 
     private broadcast(socket: socketIO.Socket, room: Room, message: string, date: number): void {
         setTimeout(() => {
-        this.io.in(room.name).emit('broadcast', message, date);
+            this.io.in(room.name).emit('broadcast', message, date);
         }, this.PING_TEST);
         const command: any = JSON.parse(message);
         room.gameLogic.runCommand(command, date);

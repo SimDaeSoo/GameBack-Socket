@@ -36,7 +36,7 @@ export class Room {
         this.gameData.createWorldData(154, 24);
         this.gameLogic = new GameLogic();
         this.gameLogic.gameData = this.gameData;
-        
+
         this.updater.onUpdate(async (dt: number): Promise<void> => {
             await this.gameLogic.update(dt);
         });

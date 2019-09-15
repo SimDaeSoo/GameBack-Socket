@@ -71,7 +71,7 @@ export class RoomManager {
                 result = true;
                 socket.leave(this.rooms[key].name);
                 this.rooms[key].leave(socket.id);
-                
+
                 delete this.userDict[socket.id];
 
                 if (this.rooms[key].members.length <= 0) {
