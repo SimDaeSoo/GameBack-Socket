@@ -23,7 +23,7 @@ class GameServer {
         const room: Room = this.roomManager.autoMapping(socket);
         log({ text: `Connection: ${socket.id}` });
 
-        socket.on('init', (): void => { this.socketInit(socket, room); });
+        socket.on('initialize', (): void => { this.socketInitialize(socket, room); });
         socket.on('broadcast', (message: string, date: number): void => { this.broadcast(socket, room, message, date); });
         socket.on('keydown', (keycode: number): void => { this.keydown(socket, room, keycode); });
         socket.on('keyup', (keycode: number): void => { this.keyup(socket, room, keycode); });
@@ -49,8 +49,8 @@ class GameServer {
         this.roomManager.disconnect(socket);
     }
 
-    private socketInit(socket: socketIO.Socket, room: Room): void {
-        socket.emit('init', JSON.stringify(room.gameData.data));
+    private socketInitialize(socket: socketIO.Socket, room: Room): void {
+        socket.emit('initialize', JSON.stringify(room.gameData.data));
 
         // TODO 제거.
         const command3 = { script: 'setWorldProperties', data: room.gameData.worldProperties };

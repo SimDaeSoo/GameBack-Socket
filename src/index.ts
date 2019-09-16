@@ -6,7 +6,7 @@ debug('ts-express:server');
 
 // express 서버.
 const app: App = new App();
-app.init();
+app.initialize();
 app.createServer();
 
 // 게임의 진행을 담당하는 소켓서버이다.

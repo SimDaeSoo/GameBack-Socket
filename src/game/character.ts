@@ -55,6 +55,10 @@ export interface IBaseObjectPacket {
 
 export interface ITilePacket extends IBaseObjectPacket {
     tileNumber: number;
+    startXAxis: number;
+    startYAxis: number;
+    endXAxis: number;
+    endYAxis: number;
 }
 
 export interface ICharacterPacket extends IBaseObjectPacket {
@@ -78,7 +82,7 @@ export interface IBaseObjectData {
     size: { x: number, y: number };
     scale: { x: number, y: number };
     weight: number;
-    baseStat: IStat
+    baseStat: IStat;
 }
 
 export interface ITileData extends IBaseObjectData {
@@ -100,47 +104,78 @@ export class BaseObject {
     public packet: IBaseObjectPacket;
     public data: IBaseObjectData;
     public state: State = new State();
+    public dirty: boolean = false; // Renderer 날 보고 그려라
+    public broadcast: boolean = false; // Server 날 보고 내 Packet을 전송해라
 
     constructor(data: IBaseObjectPacket) {
-        this.packet = data;
+        this.packet = Object.assign({
+            health: 0,
+            position: { x: 0, y: 0 },
+            vector: { x: 0, y: 0 },
+            forceVector: { x: 0, y: 0 },
+            flip: { x: false, y: false },
+            rotation: 0,
+            rotationVector: 0,
+            customProperties: {}
+        }, data);
     }
-    /*
-    id: string;
-    class: string;
-    objectType: string;
-    health: number;
 
-    position: { x: number, y: number };
-    vector: { x: number, y: number };
-    forceVector: { x: number, y: number };
-    flip: { x: boolean, y: boolean };
-    rotation: number;
-    rotationVector: number;
-    customProperties: { [key: string]: any };
-     */
+    public update(dt: number): void {
+        // apply vector,
+        // apply forcevector
+        // mutation
+    }
 
-    // Packet getter, setter
-    get position(): { x: number, y: number } { return this.packet.position; }
-    set position(position: { x: number, y: number }) { this.packet.position = position; }
-    get vector(): { x: number, y: number } { return this.packet.vector; }
-    set vector(vector: { x: number, y: number }) { this.packet.vector = vector; }
+    public keyDown(keyCode: number): void {
+
+    }
+
+    public keyUp(keyCode: number): void {
+        
+    }
+
+    // packet getter
     get id(): string { return this.packet.id; }
-    set id(id: string) { this.packet.id = id; }
     get class(): string { return this.packet.class; }
-    set class(className: string) { this.packet.class = className; }
     get objectType(): string { return this.packet.objectType; }
-    set objectType(objectType: string) { this.packet.objectType = objectType; }
     get health(): number { return this.packet.health; }
+    get position(): { x: number, y: number } { return this.packet.position; }
+    get vector(): { x: number, y: number } { return this.packet.vector; }
+    get forceVector(): { x: number, y: number} { return this.packet.forceVector; }
+    get flip(): { x: boolean, y: boolean } { return this.packet.flip; }
+    get rotation(): number { return this.packet.rotation; }
+    get rotationVector(): number { return this.packet.rotationVector; }
+    get costomProperties(): { [key: string]: any } { return this.packet.customProperties; }
+
+    // packet setter
+    set id(id: string) { this.packet.id = id; }
+    set class(className: string) { this.packet.class = className; }
+    set objectType(objectType: string) { this.packet.objectType = objectType; }
     set health(health: number) { this.packet.health = health; }
+    set position(position: { x: number, y: number }) { this.packet.position = position; }
+    set vector(vector: { x: number, y: number }) { this.packet.vector = vector; }
+    set forceVector(vector: { x: number, y: number }) { this.packet.forceVector = vector; }
+    set flip(flip: { x: boolean, y: boolean }) { this.packet.flip = flip; }
+    set rotation(value: number) { this.packet.rotation = value; }
+    set rotationVector(value: number) { this.packet.rotationVector = value; }
+    set costomProperties(properties: { [key: string]: any }) { this.packet.customProperties = properties; }
 
-
-    // Data getter, setter
+    // Data getter
+    get name(): string { return this.data.name; }
     get size(): { x: number, y: number } { return this.data.size; }
-    set size(size: { x: number, y: number }) { this.data.size = size; }
     get scale(): { x: number, y: number } { return this.data.scale; }
-    set scale(scale: { x: number, y: number }) { this.data.scale = scale; }
     get weight(): number { return this.data.weight; }
+    get baseStat(): IStat { return this.data.baseStat; }
+
+    // Data setter
+    set name(name: string) { this.data.name = name; }
+    set size(size: { x: number, y: number }) { this.data.size = size; }
+    set scale(scale: { x: number, y: number }) { this.data.scale = scale; }
     set weight(weight: number) { this.data.weight = weight; }
+    set baseStat(stat: IStat) { this.data.baseStat = stat; }
+
+    // Data를 가공해서 만들 수 있는 것들. -> getter로만 접근가능한 것들을 만들어 둬야한다.
+    get maxHealth(): number { return this.data.baseStat.maxHealth; }
 }
 
 export class Tile extends BaseObject {
@@ -151,13 +186,15 @@ export class Tile extends BaseObject {
         super(data);
         this.packet = data;
         this.data = require(`../json/${this.packet.objectType}/${this.packet.class}.json`);
-
-        this.load();
     }
 
-    private load(): void {
+    // Packet getter
 
-    }
+    // Packet setter
+
+    // Data getter
+
+    // Data setter
 }
 
 export class Character extends BaseObject {

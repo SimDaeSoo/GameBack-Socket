@@ -14,7 +14,7 @@ class App {
         this.express = express();
     }
 
-    public async init(): Promise<void> {
+    public async initialize(): Promise<void> {
         this.middleware();
         this.setNormalizePort();
     }
