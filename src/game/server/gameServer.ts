@@ -7,6 +7,7 @@ import { Room } from './room';
 class GameServer {
     public io: socketIO.Server;
     public roomManager: RoomManager = new RoomManager();
+    public pings: Array<number> = [];
     private PING_TEST: number = 0;
 
     // TODO 여기 하단 한번 정리하자.
@@ -28,20 +29,32 @@ class GameServer {
         socket.on('keydown', (keycode: number): void => { this.keydown(socket, room, keycode); });
         socket.on('keyup', (keycode: number): void => { this.keyup(socket, room, keycode); });
         socket.on('disconnect', (): void => { this.disconnect(socket, room); });
-        socket.on('pingTest', (date: number): void => { this.ping(socket); });
+        socket.on('pingTest', (date: number): void => { this.ping(socket, date); });
     }
 
-    private ping(socket: socketIO.Socket): void {
+    public get avgPing(): number {
+        let result: number = 0;
+
+        this.pings.forEach((ping) => {
+            result += ping / this.pings.length;
+        });
+
+        return result;
+    }
+
+    private ping(socket: socketIO.Socket, date: number): void {
+        this.pings.push(Date.now() - date);
+        if (this.pings.length > 100) {
+            this.pings.splice(0, 1);
+        }
+
         socket.emit('pingTest', Date.now());
     }
 
     private disconnect(socket: socketIO.Socket, room: Room): void {
         const command = {
             script: 'deleteCharacter',
-            data: {
-                id: socket.id,
-                objectType: 'characters'
-            }
+            data: { id: socket.id, objectType: 'characters' }
         };
         this.broadcast(socket, room, JSON.stringify(command), Date.now());
 

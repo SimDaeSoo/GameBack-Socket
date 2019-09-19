@@ -3,9 +3,11 @@ import { warn, log } from '../union/utils';
 import * as socketIO from 'socket.io';
 
 export class RoomManager {
+    public userCounting: number = 0;
+    public MAX_USER: number = 100;
     public userDict: { [id: string]: string } = {};
     public rooms: Array<Room> = [];
-    public count: number = 0;
+    public roomNumber: number = 0;
 
     public autoMapping(socket: socketIO.Socket): Room {
         let room: Room;
@@ -21,6 +23,7 @@ export class RoomManager {
             room = this.makeRoom({ name: this.getRoomName() });
         }
         this.joinRoom(socket, room.name);
+        this.userCounting++;
 
         return room;
     }
@@ -87,10 +90,21 @@ export class RoomManager {
 
     public disconnect(socket: socketIO.Socket): void {
         this.leaveRoom(socket, this.userDict[socket.id]);
+        this.userCounting--;
     }
 
     public getRoomName(): string {
-        this.count++;
-        return `Room${this.count}`;
+        this.roomNumber++;
+        return `Room${this.roomNumber}`;
+    }
+
+    public get averageUPS(): number {
+        let avgUPS: number = 0;
+
+        this.rooms.forEach((room) => {
+            avgUPS += room.updater.ups / this.rooms.length;
+        });
+
+        return avgUPS;
     }
 }
