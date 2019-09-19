@@ -1,4 +1,4 @@
-import { State } from "./class/state";
+import { State } from "./union/state";
 
 export interface IStat {
     maxHealth: number;
@@ -131,7 +131,7 @@ export class BaseObject {
     }
 
     public keyUp(keyCode: number): void {
-        
+
     }
 
     // packet getter
@@ -141,7 +141,7 @@ export class BaseObject {
     get health(): number { return this.packet.health; }
     get position(): { x: number, y: number } { return this.packet.position; }
     get vector(): { x: number, y: number } { return this.packet.vector; }
-    get forceVector(): { x: number, y: number} { return this.packet.forceVector; }
+    get forceVector(): { x: number, y: number } { return this.packet.forceVector; }
     get flip(): { x: boolean, y: boolean } { return this.packet.flip; }
     get rotation(): number { return this.packet.rotation; }
     get rotationVector(): number { return this.packet.rotationVector; }

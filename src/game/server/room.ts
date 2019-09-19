@@ -1,7 +1,6 @@
-import GameLogic from './gameLogic';
-import Updater from './updater';
-import GameData from './gameData';
-import { log } from '../utils/utils';
+import GameLogic from '../union/gameLogic';
+import Updater from '../union/updater';
+import GameData from '../union/gameData';
 
 export interface IRoom {
     name: string,
