@@ -22,7 +22,7 @@ $ npm run build
 - Express
 - Socket.io
 
-### Front Dev Environments ###
+### Back Dev Environments ###
 - Typescript
 - Javascript
 - Webpack 4
