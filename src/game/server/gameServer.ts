@@ -76,7 +76,7 @@ class GameServer {
 
                 class: 'archer',
                 objectType: 'characters',
-                size: { x: 14, y: 68 },
+                size: { width: 14, height: 68 },
                 scale: { x: 1, y: 1 },
                 weight: 1,
                 land: false,
