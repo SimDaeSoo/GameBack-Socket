@@ -63,7 +63,7 @@ class GameServer {
     }
 
     private socketInitialize(socket: socketIO.Socket, room: Room): void {
-        socket.emit('initialize', JSON.stringify(room.gameData.data));
+        socket.emit('initialize', JSON.stringify(room.gameData.initializeData));
 
         // TODO 제거.
         const command3 = { script: 'setWorldProperties', data: room.gameData.worldProperties };
@@ -106,7 +106,7 @@ class GameServer {
                 room.gameData.data.characters[socket.id].land = false;
                 const command = {
                     script: 'setState',
-                    data: Object.assign(room.gameData.data.characters[socket.id], {
+                    data: Object.assign(room.gameData.data.characters[socket.id].data, {
                         vector: { x: room.gameData.data.characters[socket.id].vector.x, y: -0.35 },
                         forceVector: { x: room.gameData.data.characters[socket.id].forceVector.x, y: 0.001 }
                     })
@@ -116,7 +116,7 @@ class GameServer {
         } else if (keycode === 39) {
             const command = {
                 script: 'setState',
-                data: Object.assign(room.gameData.data.characters[socket.id], {
+                data: Object.assign(room.gameData.data.characters[socket.id].data, {
                     vector: { x: 0.15, y: room.gameData.data.characters[socket.id].vector.y }
                 })
             };
@@ -124,7 +124,7 @@ class GameServer {
         } else if (keycode === 37) {
             const command = {
                 script: 'setState',
-                data: Object.assign(room.gameData.data.characters[socket.id], {
+                data: Object.assign(room.gameData.data.characters[socket.id].data, {
                     vector: { x: -0.15, y: room.gameData.data.characters[socket.id].vector.y }
                 })
             };
@@ -136,7 +136,7 @@ class GameServer {
         if (keycode === 39 && room.gameData.data.characters[socket.id].vector.x > 0) {
             const command = {
                 script: 'setState',
-                data: Object.assign(room.gameData.data.characters[socket.id], {
+                data: Object.assign(room.gameData.data.characters[socket.id].data, {
                     vector: { x: 0, y: room.gameData.data.characters[socket.id].vector.y }
                 })
             };
@@ -144,7 +144,7 @@ class GameServer {
         } else if (keycode === 37 && room.gameData.data.characters[socket.id].vector.x < 0) {
             const command = {
                 script: 'setState',
-                data: Object.assign(room.gameData.data.characters[socket.id], {
+                data: Object.assign(room.gameData.data.characters[socket.id].data, {
                     vector: { x: 0, y: room.gameData.data.characters[socket.id].vector.y }
                 })
             };
