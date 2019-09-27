@@ -5,10 +5,19 @@ import { RoomManager } from './roomManager';
 import { Room } from './room';
 
 class GameServer {
+    public static _instance: GameServer;
     public io: socketIO.Server;
     public roomManager: RoomManager = new RoomManager();
     public pings: Array<number> = [];
     private PING_TEST: number = 0;
+
+    public static get instance(): GameServer {
+        if (!this._instance) {
+            this._instance = new this();
+        }
+
+        return this._instance;
+    }
 
     // TODO 여기 하단 한번 정리하자.
     public createSocketServer(server: http.Server): void {

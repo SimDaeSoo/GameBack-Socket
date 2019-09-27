@@ -5,14 +5,16 @@ import * as bodyParser from 'body-parser';
 import * as http from 'http';
 import * as ip from 'public-ip';
 import GameServer from './game/server/gameServer';
+import { SocketServerRouter } from './routers/SocketServerRouter';
 
 class App {
-    private MASTER_URL: string = 'http://ec2-13-124-180-130.ap-northeast-2.compute.amazonaws.com:8000';
+    private MASTER_URL: string = 'http://13.124.180.130:8000';
+    // private MASTER_URL: string = 'http://localhost:8000';
     private IP: string;
     public express: Application;
     public server: http.Server;
     public port: number;
-    public gameServer: GameServer = new GameServer();
+    public gameServer: GameServer = GameServer.instance;
     public requestJS: any;
 
     constructor() {
@@ -23,6 +25,7 @@ class App {
     public async initialize(): Promise<void> {
         this.IP = await ip.v4();
         this.middleware();
+        this.routes();
         this.port = 8080;
     }
 
@@ -39,6 +42,7 @@ class App {
             }
         });
         this.server.once('listening', () => {
+            console.log(`server listeneing on ${this.port}`);
             this.gameServer.createSocketServer(this.server);
             this.applyServer();
         });
@@ -54,9 +58,9 @@ class App {
                     ping: this.gameServer.avgPing
                 };
 
-                this.requestJS.post(`${this.MASTER_URL}/server/status`, { body: { serverStatus }, json: true });
+                this.requestJS.post(`${this.MASTER_URL}/server/apply`, { body: { serverStatus }, json: true });
                 ping();
-            }, 2000);
+            }, 500);
         }
 
         ping();
@@ -74,6 +78,11 @@ class App {
             res.header('Access-Control-Allow-Methods', 'POST,GET');
             next();
         });
+    }
+
+    private routes(): void {
+        const server: SocketServerRouter = new SocketServerRouter();
+        this.express.use('/server', server.router);
     }
 }
 export default App;
