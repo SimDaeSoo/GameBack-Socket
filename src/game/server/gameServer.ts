@@ -72,7 +72,7 @@ class GameServer {
     }
 
     private socketInitialize(socket: socketIO.Socket, room: Room): void {
-        socket.emit('initialize', JSON.stringify(room.gameData.initializeData));
+        socket.emit('initialize', JSON.stringify(room.gameData.exportData));
 
         // TODO 제거.
         const command3 = { script: 'setWorldProperties', data: room.gameData.worldProperties };
