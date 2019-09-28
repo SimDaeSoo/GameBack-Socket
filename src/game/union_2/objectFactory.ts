@@ -1,6 +1,5 @@
 import BaseGameObject from "./baseGameObject";
 import BaseTileObject from "./baseTileObject";
-import BaseCharacterObject from "./baseCharacterObject";
 
 export default class ObjectFactory {
     public static create(data: any): BaseGameObject {
@@ -11,7 +10,7 @@ export default class ObjectFactory {
                 object = new BaseTileObject(data);
                 break;
             case "characters":
-                object = new BaseCharacterObject(data);
+                object = new BaseGameObject(data);
                 break;
         }
 
