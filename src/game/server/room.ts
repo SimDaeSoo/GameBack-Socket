@@ -32,7 +32,7 @@ export class Room {
 
         this.updater = new Updater();
         this.gameData = new GameData();
-        this.gameData.createWorldData(154, 24);
+        this.gameData.createWorldData(154, 12);
         this.gameLogic = new GameLogic();
         this.gameLogic.gameData = this.gameData;
 
