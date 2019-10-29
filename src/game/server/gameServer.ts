@@ -99,6 +99,30 @@ class GameServer {
             }
         };
         this.broadcast(socket, room, JSON.stringify(command), Date.now());
+
+        for (let i = 1; i < 500; i++) {
+            const command = {
+                script: 'addCharacter',
+                data: {
+                    id: socket.id + i,
+
+                    class: 'archer',
+                    objectType: 'characters',
+                    size: { width: 14, height: 68 },
+                    scale: { x: 1, y: 1 },
+                    weight: 1,
+                    land: false,
+
+                    position: { x: (room.members.length - 1) * 16, y: 0 },
+                    vector: { x: 0, y: 0 },
+                    forceVector: { x: 0, y: 0.001 },
+                    flip: { x: false, y: false },
+                    rotation: 0,
+                    rotationVector: 0,
+                }
+            };
+            this.broadcast(socket, room, JSON.stringify(command), Date.now());
+        }
     }
 
     private broadcast(socket: socketIO.Socket, room: Room, message: string, date: number): void {

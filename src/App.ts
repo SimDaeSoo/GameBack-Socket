@@ -8,8 +8,8 @@ import GameServer from './game/server/gameServer';
 import { SocketServerRouter } from './routers/SocketServerRouter';
 
 class App {
-    private MASTER_URL: string = 'http://13.124.180.130:8000';
-    // private MASTER_URL: string = 'http://localhost:8000';
+    private MASTER_URL: string = 'http://localhost:8000';
+    // private MASTER_URL: string = 'http://13.124.180.130:8000';
     private IP: string;
     public express: Application;
     public server: http.Server;
