@@ -1,9 +1,9 @@
 import * as debug from 'debug';
-import App from './App';
+import ServerApp from './ServerApp';
 debug('ts-express:server');
 
 async function start(): Promise<void> {
-    const app: App = new App();
+    const app: ServerApp = new ServerApp();
     await app.initialize();
     app.createServer();
 }

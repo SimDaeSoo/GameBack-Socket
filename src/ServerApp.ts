@@ -6,9 +6,10 @@ import * as http from 'http';
 import * as ip from 'public-ip';
 import GameServer from './game/server/gameServer';
 import { SocketServerRouter } from './routers/SocketServerRouter';
+import axios from 'axios';
 
 // 서버 친구들도 Any타입 제거하기 해야함.
-class App {
+class ServerApp {
     private MASTER_URL: string = 'http://localhost:8000';
     // private MASTER_URL: string = 'http://13.124.180.130:8000';
     private IP: string;
@@ -16,10 +17,8 @@ class App {
     public server: http.Server;
     public port: number;
     public gameServer: GameServer = GameServer.instance;
-    public requestJS: any;
 
     constructor() {
-        this.requestJS = require('request');
         this.express = express();
     }
 
@@ -43,7 +42,6 @@ class App {
             }
         });
         this.server.once('listening', () => {
-            console.log(`server listeneing on ${this.port}`);
             this.gameServer.createSocketServer(this.server);
             this.applyServer();
         });
@@ -59,8 +57,7 @@ class App {
                     ping: this.gameServer.avgPing
                 };
 
-                // Require JS 제거하고 Axios로 변경.
-                this.requestJS.post(`${this.MASTER_URL}/server/apply`, { body: { serverStatus }, json: true });
+                axios.post(`${this.MASTER_URL}/server/apply`, { serverStatus });
                 ping();
             }, 500);
         }
@@ -87,4 +84,5 @@ class App {
         this.express.use('/server', server.router);
     }
 }
-export default App;
+
+export default ServerApp;
