@@ -7,6 +7,7 @@ import * as ip from 'public-ip';
 import GameServer from './game/server/gameServer';
 import { SocketServerRouter } from './routers/SocketServerRouter';
 
+// 서버 친구들도 Any타입 제거하기 해야함.
 class App {
     private MASTER_URL: string = 'http://localhost:8000';
     // private MASTER_URL: string = 'http://13.124.180.130:8000';
@@ -58,6 +59,7 @@ class App {
                     ping: this.gameServer.avgPing
                 };
 
+                // Require JS 제거하고 Axios로 변경.
                 this.requestJS.post(`${this.MASTER_URL}/server/apply`, { body: { serverStatus }, json: true });
                 ping();
             }, 500);

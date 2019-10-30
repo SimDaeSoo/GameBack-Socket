@@ -100,7 +100,7 @@ class GameServer {
         };
         this.broadcast(socket, room, JSON.stringify(command), Date.now());
 
-        for (let i = 1; i < 500; i++) {
+        for (let i = 1; i < 10; i++) {
             const command = {
                 script: 'addCharacter',
                 data: {
