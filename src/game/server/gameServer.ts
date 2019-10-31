@@ -9,7 +9,6 @@ class GameServer {
     public io: socketIO.Server;
     public roomManager: RoomManager = new RoomManager();
     public pings: Array<number> = [];
-    private PING_TEST: number = 0;
 
     public static get instance(): GameServer {
         if (!this._instance) {
@@ -72,11 +71,7 @@ class GameServer {
     }
 
     private socketInitialize(socket: socketIO.Socket, room: Room): void {
-        socket.emit('initialize', JSON.stringify(room.gameData.exportData));
-
-        // TODO 제거.
-        const command3 = { script: 'setWorldProperties', data: room.gameData.worldProperties };
-        socket.emit('broadcast', JSON.stringify(command3), Date.now());
+        socket.emit('initialize', JSON.stringify(room.gameData.export));
 
         const command = {
             script: 'addCharacter',
@@ -99,36 +94,10 @@ class GameServer {
             }
         };
         this.broadcast(socket, room, JSON.stringify(command), Date.now());
-
-        for (let i = 1; i < 500; i++) {
-            const command = {
-                script: 'addCharacter',
-                data: {
-                    id: socket.id + i,
-
-                    class: 'archer',
-                    objectType: 'characters',
-                    size: { width: 14, height: 68 },
-                    scale: { x: 1, y: 1 },
-                    weight: 1,
-                    land: false,
-
-                    position: { x: (room.members.length - 1) * 16, y: 0 },
-                    vector: { x: 0, y: 0 },
-                    forceVector: { x: 0, y: 0.001 },
-                    flip: { x: false, y: false },
-                    rotation: 0,
-                    rotationVector: 0,
-                }
-            };
-            this.broadcast(socket, room, JSON.stringify(command), Date.now());
-        }
     }
 
     private broadcast(socket: socketIO.Socket, room: Room, message: string, date: number): void {
-        setTimeout(() => {
-            this.io.in(room.name).emit('broadcast', message, date);
-        }, this.PING_TEST);
+        this.io.in(room.name).emit('broadcast', message, date);
         const command: any = JSON.parse(message);
         room.gameLogic.runCommand(command, date);
     }

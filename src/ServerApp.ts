@@ -10,8 +10,8 @@ import axios from 'axios';
 
 // 서버 친구들도 Any타입 제거하기 해야함.
 class ServerApp {
-    private MASTER_URL: string = 'http://localhost:8000';
-    // private MASTER_URL: string = 'http://13.124.180.130:8000';
+    // private MASTER_URL: string = 'http://localhost:8000';
+    private MASTER_URL: string = 'http://15.164.141.35:8000';
     private IP: string;
     public express: Application;
     public server: http.Server;
