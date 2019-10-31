@@ -1,16 +1,13 @@
-const webpack = require('webpack');
+const path = require('path');
 const merge = require('webpack-merge');
 const baseConfig = require('./webpack.base.config');
 
 const webpackConfig = merge(baseConfig, {
     mode: 'development',
-    devServer: {
-        hot: true,
-        port: 8080
+    output: {
+        filename: 'index.js',
+        path: path.resolve(__dirname, '../dist')
     },
-    plugins: [
-        new webpack.HotModuleReplacementPlugin()
-    ]
 });
 
 module.exports = webpackConfig;

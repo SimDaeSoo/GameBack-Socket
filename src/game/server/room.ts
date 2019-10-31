@@ -23,7 +23,7 @@ export class Room {
             name: '',
             members: [],
             isPlaying: false,
-            maxMembers: 10
+            maxMembers: 5
         }, options);
 
         for (let key in defaultOptions) {

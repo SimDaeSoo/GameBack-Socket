@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "clean": "rimraf dist",
-    "start": "webpack-watch-server --config ./build/webpack.dev.config.js",
+    "dev": "webpack-dev-server --config ./build/webpack.dev.config.js",
+    "start": "webpack-watch-server --config ./build/webpack.watch.config.js",
     "build": "npm run clean && webpack --config ./build/webpack.prod.config.js"
   },
   "repository": {
@@ -34,6 +35,7 @@
     "typescript": "^3.5.3",
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.6",
+    "webpack-dev-server": "^3.9.0",
     "webpack-merge": "^4.2.1",
     "webpack-node-externals": "^1.7.2",
     "webpack-watch-server": "^1.2.1"
