@@ -44,10 +44,10 @@ class GameServer {
         let result: number = 0;
 
         this.pings.forEach((ping) => {
-            result += ping / this.pings.length;
+            result += ping;
         });
 
-        return result;
+        return result / this.pings.length;
     }
 
     private ping(socket: socketIO.Socket, date: number): void {
